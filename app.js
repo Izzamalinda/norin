@@ -1,44 +1,52 @@
 const express = require("express");
 const path = require("path");
 const ejs = require("ejs");
-const authRoutes = require("./routes/auth"); 
-const sequelize = require("./config/db");  // koneksi db
-require("dotenv").config(); // load .env
-const session = require("express-session"); // 🔑 taruh require di atas
+const session = require("express-session");
+require("dotenv").config();
+
+const { sequelize } = require("./models"); // pakai models/index.js
+
+const authRoutes = require("./routes/auth");
+const adminRoutes = require("./routes/admin");
+const userRoutes = require("./routes/user");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// ========== Setup view engine ==========
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
+// ========== Middleware ==========
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 
-app.use(session({
-  secret: "norincafe-secret", // ganti dengan string random panjang
-  resave: false,
-  saveUninitialized: false,
-  cookie: { secure: false } // secure:false karena kita pakai http, bukan https
-}));
+app.use(
+  session({
+    secret: "norincafe-secret",
+    resave: false,
+    saveUninitialized: false,
+    cookie: { secure: false },
+  })
+);
 
+// ========== Routes ==========
 app.get("/", (req, res) => {
   res.redirect("/loginAdmin");
 });
 
-app.use("/", authRoutes);  // <-- aktifkan login
-// app.use("/admin", adminRoutes); // ini aktif nanti setelah ada adminRoutes
-
-const adminRoutes = require("./routes/admin");
+app.use("/", authRoutes);
 app.use("/admin", adminRoutes);
+app.use("/", userRoutes);
 
-const userRoutes = require("./routes/user");
-app.use("/", userRoutes);   // akses lewat /menu
-
-sequelize.sync()
+// ========== DB Sync & Server ==========
+sequelize
+  .sync()
   .then(() => {
-    console.log("Database & tables created!");
-    app.listen(PORT, () => console.log(`Server running at http://localhost:${PORT}`));
+    console.log("✅ Database & tables created!");
+    app.listen(PORT, () =>
+      console.log(`🚀 Server running at http://localhost:${PORT}`)
+    );
   })
-  .catch(err => console.error("DB Sync error:", err));
+  .catch((err) => console.error("🔥 DB Sync error:", err));

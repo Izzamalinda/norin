@@ -1,0 +1,43 @@
+'use strict';
+const { Model } = require('sequelize');
+
+module.exports = (sequelize, DataTypes) => {
+  class Pesanan extends Model {
+    static associate(models) {
+      // Relasi ke meja
+      Pesanan.belongsTo(models.meja, { foreignKey: 'id_meja' });
+      // Relasi ke keranjang (opsional)
+      Pesanan.belongsTo(models.keranjang, { foreignKey: 'id_keranjang' });
+    }
+  }
+
+  Pesanan.init({
+    id_pesanan: {
+      type: DataTypes.STRING(50),
+      primaryKey: true
+    },
+    tanggal_pesan: {
+      type: DataTypes.DATE,
+      allowNull: false
+    },
+    status_pesanan: {
+      type: DataTypes.STRING(50),
+      allowNull: false
+    },
+    id_meja: {
+      type: DataTypes.STRING(50),
+      allowNull: false
+    },
+    id_keranjang: {
+      type: DataTypes.STRING(50),
+      allowNull: true
+    }
+  }, {
+    sequelize,
+    modelName: 'Pesanan',
+    tableName: 'pesanan',
+    timestamps: false
+  });
+
+  return Pesanan;
+};

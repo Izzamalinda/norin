@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcrypt");       // Untuk hash jawaban & password
-const User = require("../models/user");
+const { User } = require("../models");
 
 router.get("/loginAdmin", (req, res) => {
   console.log("✅ /loginAdmin kepanggil"); // debug

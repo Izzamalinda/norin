@@ -2,40 +2,33 @@
 const { Model } = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
-  class User extends Model {
+  class Meja extends Model {
     static associate(models) {
+      // nanti bisa relasi dengan Pesanan (1 meja bisa punya banyak pesanan)
+      Meja.hasMany(models.pesanan, { foreignKey: 'id_meja' });
     }
   }
 
-  User.init({
-    id_user: {
+  Meja.init({
+    id_meja: {
       type: DataTypes.STRING(50),
       primaryKey: true
     },
-    username: {
-      type: DataTypes.STRING,
+    no_meja: {
+      type: DataTypes.INTEGER,
       allowNull: false,
       unique: true
     },
-    password: {
-      type: DataTypes.STRING,
-      allowNull: false
-    },
-    security_question: {
-      type: DataTypes.STRING,
-      allowNull: false
-    },
-    security_answer: {
+    qr_code: {
       type: DataTypes.STRING,
       allowNull: false
     }
-
   }, {
     sequelize,
-    modelName: 'User',
-    tableName: 'users',
+    modelName: 'Meja',
+    tableName: 'meja',
     timestamps: false
   });
 
-  return User;
+  return Meja;
 };
