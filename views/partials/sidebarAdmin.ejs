@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= title %></title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    .sidebar-gradient {
+      background: linear-gradient(135deg, #1f2937 0%, #374151 50%, #4b5563 100%);
+    }
+    
+    .menu-item {
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .menu-item::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+      transition: left 0.5s;
+    }
+    
+    .menu-item:hover::before {
+      left: 100%;
+    }
+    
+    .profile-glow {
+      box-shadow: 0 0 30px rgba(249, 115, 22, 0.3);
+      animation: pulse-glow 2s infinite;
+    }
+    
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 0 30px rgba(249, 115, 22, 0.3); }
+      50% { box-shadow: 0 0 40px rgba(249, 115, 22, 0.5); }
+    }
+    
+    .glass-card {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-gray-100 via-orange-50 to-red-50 text-gray-800 min-h-screen flex">
+
+  <!-- partials/sidebarAdmin.ejs -->
+<aside 
+  class="w-64 h-screen fixed top-0 left-0 sidebar-gradient text-white shadow-2xl z-50 flex flex-col overflow-y-auto">
+
+  <!-- Background Decoration -->
+  <div class="absolute top-0 right-0 w-40 h-40 bg-orange-500/10 rounded-full blur-3xl"></div>
+  <div class="absolute bottom-0 left-0 w-32 h-32 bg-red-500/10 rounded-full blur-2xl"></div>
+
+  <!-- Wrapper isi sidebar -->
+  <div class="relative z-10 h-full flex flex-col justify-between">
+    
+    <!-- Top Section -->
+    <div class="p-6">
+      <!-- Brand Header -->
+      <div class="text-center mb-8">
+        <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-orange-400 to-red-600 rounded-2xl mb-4 shadow-xl">
+          <i class="fas fa-utensils text-white text-2xl"></i>
+        </div>
+        <h1 class="text-xl font-bold bg-gradient-to-r from-orange-300 to-red-300 bg-clip-text text-transparent">
+          Food Admin
+        </h1>
+      </div>
+
+      <!-- Admin Profile -->
+      <div class="glass-card rounded-2xl p-4 mb-8">
+        <div class="flex flex-col items-center">
+          <div class="w-20 h-20 rounded-full bg-gradient-to-br from-orange-400 to-red-500 profile-glow flex items-center justify-center">
+            <i class="fas fa-user-tie text-white text-xl"></i>
+          </div>
+          <p class="font-semibold mt-3 text-base">Admin</p>
+          <div class="mt-1 inline-flex items-center space-x-2 text-xs">
+            <div class="w-2 h-2 bg-green-400 rounded-full"></div>
+            <span class="text-green-300">Online</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Menu Navigasi -->
+      <nav class="flex flex-col space-y-3">
+        <a href="/admin" class="menu-item bg-gradient-to-r from-orange-500 to-red-600 text-white font-semibold px-4 py-3 rounded-xl flex items-center space-x-3 shadow-lg">
+          <i class="fas fa-chart-pie text-lg"></i>
+          <span>Dashboard</span>
+        </a>
+        <a href="/menu" class="menu-item bg-white/10 text-white font-semibold px-4 py-3 rounded-xl flex items-center space-x-3 hover:bg-gradient-to-r hover:from-orange-500 hover:to-red-600">
+          <i class="fas fa-utensils text-lg"></i>
+          <span>Kelola Menu</span>
+        </a>
+        <a href="/pesanan" class="menu-item bg-white/10 text-white font-semibold px-4 py-3 rounded-xl flex items-center space-x-3 hover:bg-gradient-to-r hover:from-orange-500 hover:to-red-600">
+          <i class="fas fa-shopping-cart text-lg"></i>
+          <span>Pesanan</span>
+        </a>
+
+        <!-- Logout -->
+        <a href="/logout" class="menu-item bg-gradient-to-r from-red-600 to-red-700 text-white font-semibold px-4 py-3 rounded-xl flex items-center space-x-3 mt-8 shadow-lg hover:from-red-700 hover:to-red-800">
+          <i class="fas fa-sign-out-alt text-lg"></i>
+          <span>Logout</span>
+        </a>
+      </nav>
+    </div>
+
+    <!-- Bottom Section -->
+    <div class="p-6 border-t border-white/10 relative z-10">
+      <p class="text-center text-xs text-gray-400">&copy; 2024 Food Admin System</p>
+    </div>
+  </div>
+</aside>
+    
+    </div>
+  </main>
+
+</body>
+</html>

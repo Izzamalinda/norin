@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Menu Norin Cafe</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-white min-h-screen text-gray-800">
+
+  <!-- Navbar -->
+  <nav class="bg-white flex justify-between items-center px-6 py-4 shadow-md sticky top-0 z-50">
+    <h1 class="text-2xl font-bold text-orange-600">Norin Cafe</h1>
+    <div class="flex items-center space-x-4">
+      <a href="#" class="hover:text-orange-600 transition">Menu</a>
+      <a href="#" class="hover:text-orange-600 transition">Riwayat</a>
+
+      <!-- Search Bar -->
+      <div class="relative">
+        <input id="searchInput" type="text" placeholder="Cari menu..." 
+          class="px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500 transition">
+        <button onclick="searchMenu()" class="absolute right-2 top-2 text-gray-500 hover:text-orange-500 transition">
+          <i class="fas fa-search"></i>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="container mx-auto p-6 flex gap-6">
+    
+    <!-- Sidebar -->
+    <aside class="bg-white w-1/4 p-4 rounded-2xl shadow-md border h-fit sticky top-24">
+      <h2 class="font-bold text-lg mb-4">Kategori Menu</h2>
+      <ul class="space-y-2">
+        <li><a href="#" class="block hover:text-orange-600 transition">Makanan</a></li>
+        <li><a href="#" class="block hover:text-orange-600 transition">Minuman</a></li>
+        <li><a href="#" class="block hover:text-orange-600 transition">Cemilan</a></li>
+      </ul>
+      <button class="mt-6 w-full bg-orange-500 text-white py-2 rounded-lg hover:bg-orange-600 transition shadow">
+        <i class="fas fa-shopping-cart mr-2"></i>Keranjang
+      </button>
+    </aside>
+
+    <!-- Daftar Menu -->
+    <section class="w-3/4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <!-- Card Menu Chicken Katsu -->
+      <div class="bg-white p-4 rounded-2xl shadow-md border hover:shadow-lg transform hover:scale-105 transition">
+        <img src="https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=500&h=300&fit=crop&crop=center" 
+             alt="Chicken Katsu" class="rounded-lg mb-4 w-full h-48 object-cover">
+        <h3 class="text-lg font-semibold">Chicken Katsu</h3>
+        <p class="text-orange-600 font-bold mb-3">Rp 15.000</p>
+        <button class="w-full bg-orange-500 text-white py-2 rounded-lg hover:bg-orange-600 transition shadow">
+          <i class="fas fa-plus mr-2"></i>Tambah
+        </button>
+      </div>
+
+      <!-- Card Menu Ice Coffee -->
+      <div class="bg-white p-4 rounded-2xl shadow-md border hover:shadow-lg transform hover:scale-105 transition">
+        <img src="https://images.unsplash.com/photo-1525755662778-989d0524087e?w=500&h=300&fit=crop&crop=center" 
+             alt="Ice Coffee" class="rounded-lg mb-4 w-full h-48 object-cover">
+        <h3 class="text-lg font-semibold">Ice Coffee</h3>
+        <p class="text-orange-600 font-bold mb-3">Rp 12.000</p>
+        <button class="w-full bg-orange-500 text-white py-2 rounded-lg hover:bg-orange-600 transition shadow">
+          <i class="fas fa-plus mr-2"></i>Tambah
+        </button>
+      </div>
+
+      <!-- Card Menu Nasi Goreng -->
+      <div class="bg-white p-4 rounded-2xl shadow-md border hover:shadow-lg transform hover:scale-105 transition">
+        <img src="https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=500&h=300&fit=crop&crop=center" 
+             alt="Nasi Goreng" class="rounded-lg mb-4 w-full h-48 object-cover">
+        <h3 class="text-lg font-semibold">Nasi Goreng</h3>
+        <p class="text-orange-600 font-bold mb-3">Rp 18.000</p>
+        <button class="w-full bg-orange-500 text-white py-2 rounded-lg hover:bg-orange-600 transition shadow">
+          <i class="fas fa-plus mr-2"></i>Tambah
+        </button>
+      </div>
+
+      <!-- Card Menu Mie Ayam -->
+      <div class="bg-white p-4 rounded-2xl shadow-md border hover:shadow-lg transform hover:scale-105 transition">
+        <img src="https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=500&h=300&fit=crop&crop=center" 
+             alt="Mie Ayam" class="rounded-lg mb-4 w-full h-48 object-cover">
+        <h3 class="text-lg font-semibold">Mie Ayam</h3>
+        <p class="text-orange-600 font-bold mb-3">Rp 14.000</p>
+        <button class="w-full bg-orange-500 text-white py-2 rounded-lg hover:bg-orange-600 transition shadow">
+          <i class="fas fa-plus mr-2"></i>Tambah
+        </button>
+      </div>
+
+      <!-- Card Menu Es Teh Manis -->
+      <div class="bg-white p-4 rounded-2xl shadow-md border hover:shadow-lg transform hover:scale-105 transition">
+        <img src="https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=500&h=300&fit=crop&crop=center" 
+             alt="Es Teh Manis" class="rounded-lg mb-4 w-full h-48 object-cover">
+        <h3 class="text-lg font-semibold">Es Teh Manis</h3>
+        <p class="text-orange-600 font-bold mb-3">Rp 5.000</p>
+        <button class="w-full bg-orange-500 text-white py-2 rounded-lg hover:bg-orange-600 transition shadow">
+          <i class="fas fa-plus mr-2"></i>Tambah
+        </button>
+      </div>
+
+      <!-- Card Menu Pisang Goreng -->
+      <div class="bg-white p-4 rounded-2xl shadow-md border hover:shadow-lg transform hover:scale-105 transition">
+        <img src="https://images.unsplash.com/photo-1621955964441-c173e01c135b?w=500&h=300&fit=crop&crop=center" 
+             alt="Pisang Goreng" class="rounded-lg mb-4 w-full h-48 object-cover">
+        <h3 class="text-lg font-semibold">Pisang Goreng</h3>
+        <p class="text-orange-600 font-bold mb-3">Rp 8.000</p>
+        <button class="w-full bg-orange-500 text-white py-2 rounded-lg hover:bg-orange-600 transition shadow">
+          <i class="fas fa-plus mr-2"></i>Tambah
+        </button>
+      </div>
+
+      <!-- Card Menu Bakso -->
+      <div class="bg-white p-4 rounded-2xl shadow-md border hover:shadow-lg transform hover:scale-105 transition">
+        <img src="https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=500&h=300&fit=crop&crop=center" 
+             alt="Bakso" class="rounded-lg mb-4 w-full h-48 object-cover">
+        <h3 class="text-lg font-semibold">Bakso</h3>
+        <p class="text-orange-600 font-bold mb-3">Rp 13.000</p>
+        <button class="w-full bg-orange-500 text-white py-2 rounded-lg hover:bg-orange-600 transition shadow">
+          <i class="fas fa-plus mr-2"></i>Tambah
+        </button>
+      </div>
+
+      <!-- Card Menu Jus Jeruk -->
+      <div class="bg-white p-4 rounded-2xl shadow-md border hover:shadow-lg transform hover:scale-105 transition">
+        <img src="https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=500&h=300&fit=crop&crop=center" 
+             alt="Jus Jeruk" class="rounded-lg mb-4 w-full h-48 object-cover">
+        <h3 class="text-lg font-semibold">Jus Jeruk</h3>
+        <p class="text-orange-600 font-bold mb-3">Rp 10.000</p>
+        <button class="w-full bg-orange-500 text-white py-2 rounded-lg hover:bg-orange-600 transition shadow">
+          <i class="fas fa-plus mr-2"></i>Tambah
+        </button>
+      </div>
+
+      <!-- Card Menu French Fries -->
+      <div class="bg-white p-4 rounded-2xl shadow-md border hover:shadow-lg transform hover:scale-105 transition">
+        <img src="https://images.unsplash.com/photo-1541592106381-b31e9677c0e5?w=500&h=300&fit=crop&crop=center" 
+             alt="French Fries" class="rounded-lg mb-4 w-full h-48 object-cover">
+        <h3 class="text-lg font-semibold">French Fries</h3>
+        <p class="text-orange-600 font-bold mb-3">Rp 12.000</p>
+        <button class="w-full bg-orange-500 text-white py-2 rounded-lg hover:bg-orange-600 transition shadow">
+          <i class="fas fa-plus mr-2"></i>Tambah
+        </button>
+      </div>
+    </section>
+  </div>
+
+  <!-- Popup Modal -->
+  <div id="modal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
+    <div class="bg-white rounded-2xl p-6 w-80 text-center shadow-lg transform scale-90 opacity-0 transition duration-300" id="modalBox">
+      <p class="text-lg font-semibold mb-4">Maaf Stok Habis</p>
+      <button onclick="closeModal()" 
+              class="bg-orange-500 text-white px-6 py-2 rounded-lg hover:bg-orange-600 transition shadow">
+        Oke
+      </button>
+    </div>
+  </div>
+
+  <script>
+    function searchMenu() {
+      const input = document.getElementById('searchInput').value.toLowerCase();
+      const availableMenu = ["chicken katsu", "ice coffee", "nasi goreng", "mie ayam", "es teh manis", "pisang goreng", "bakso", "jus jeruk", "french fries"];
+
+      if (!availableMenu.includes(input)) {
+        const modal = document.getElementById('modal');
+        const modalBox = document.getElementById('modalBox');
+        modal.classList.remove('hidden');
+
+        // animasi popup
+        setTimeout(() => {
+          modalBox.classList.remove('scale-90', 'opacity-0');
+          modalBox.classList.add('scale-100', 'opacity-100');
+        }, 50);
+      }
+    }
+
+    function closeModal() {
+      const modal = document.getElementById('modal');
+      const modalBox = document.getElementById('modalBox');
+
+      // animasi keluar
+      modalBox.classList.add('scale-90', 'opacity-0');
+      modalBox.classList.remove('scale-100', 'opacity-100');
+
+      setTimeout(() => {
+        modal.classList.add('hidden');
+      }, 200);
+    }
+  </script>
+
+</body>
+</html>

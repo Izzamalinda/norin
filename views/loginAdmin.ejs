@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login Admin - Food Management</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    .bg-food {
+      background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
+        url('https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=1200&h=800&fit=crop&crop=center');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+    }
+
+    .glass-effect {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .input-focus:focus {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .login-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(153, 68, 71, 0.4);
+    }
+
+    .float-animation {
+      animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+
+      0%,
+      100% {
+        transform: translateY(0px);
+      }
+
+      50% {
+        transform: translateY(-10px);
+      }
+    }
+
+    .fade-in {
+      animation: fadeIn 0.8s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+
+<body class="bg-food min-h-screen flex items-center justify-center p-4">
+
+  <div class="fade-in w-full max-w-md">
+    <!-- Logo/Brand Section -->
+    <div class="text-center mb-8 float-animation">
+      <div
+        class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-orange-400 to-red-600 rounded-full mb-4 shadow-2xl">
+        <i class="fas fa-utensils text-white text-2xl"></i>
+      </div>
+      <h1 class="text-3xl font-bold text-white mb-2">Norin Cafe</h1>
+      <p class="text-white/80 text-sm">Kelola sistem kuliner Anda</p>
+    </div>
+
+    <!-- Login Form -->
+    <div class="glass-effect rounded-2xl shadow-2xl p-8">
+      <div class="text-center mb-8">
+        <h2 class="text-2xl font-bold text-gray-800 mb-2">Selamat Datang</h2>
+        <p class="text-gray-600 text-sm">Silakan masuk ke akun admin Anda</p>
+      </div>
+
+      <!-- Tampilkan error jika ada -->
+      <% if (error) { %>
+        <div class="mb-4 p-3 text-sm text-red-700 bg-red-100 rounded-lg">
+          <i class="fas fa-exclamation-circle mr-2"></i>
+          <%= error %>
+        </div>
+        <% } %>
+
+          <form action="/loginAdmin" method="POST" class="space-y-6">
+            <!-- Username Field -->
+            <div class="space-y-2">
+              <label for="username" class="block text-sm font-semibold text-gray-700">
+                <i class="fas fa-user mr-2 text-orange-500"></i>Username
+              </label>
+              <input type="text" id="username" name="username" autocomplete="off"
+                class="input-focus w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-orange-500 transition-all duration-300 bg-white/90"
+                placeholder="Masukkan username Anda" required>
+            </div>
+
+            <!-- Password Field -->
+            <div class="space-y-2">
+              <label for="password" class="block text-sm font-semibold text-gray-700">
+                <i class="fas fa-lock mr-2 text-orange-500"></i>Password
+              </label>
+              <div class="relative">
+                <input type="password" id="password" name="password" autocomplete="new-password"
+                  class="input-focus w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-orange-500 transition-all duration-300 bg-white/90 pr-12"
+                  placeholder="Masukkan password Anda" required>
+                <button type="button" onclick="togglePassword()"
+                  class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-orange-500 transition-colors">
+                  <i id="eye-icon" class="fas fa-eye"></i>
+                </button>
+              </div>
+            </div>
+
+
+            <!-- Forgot Password Only -->
+            <div class="flex items-center justify-end text-sm">
+              <a href="/forgotPasswordAdmin"
+                class="text-orange-500 hover:text-orange-600 font-medium transition-colors">
+                Lupa password?
+              </a>
+            </div>
+
+            <!-- Login Button -->
+            <button type="submit"
+              class="login-btn w-full bg-gradient-to-r from-orange-500 to-red-600 text-white py-3 rounded-xl font-semibold transition-all duration-300 shadow-lg">
+              <i class="fas fa-sign-in-alt mr-2"></i>
+              Masuk ke Dashboard
+            </button>
+          </form>
+    </div>
+
+  <script>
+    function togglePassword() {
+      const passwordInput = document.getElementById('password');
+      const eyeIcon = document.getElementById('eye-icon');
+
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        eyeIcon.classList.remove('fa-eye');
+        eyeIcon.classList.add('fa-eye-slash');
+      } else {
+        passwordInput.type = 'password';
+        eyeIcon.classList.remove('fa-eye-slash');
+        eyeIcon.classList.add('fa-eye');
+      }
+    }
+
+    // Add some interactive feedback
+    document.addEventListener('DOMContentLoaded', function () {
+      const inputs = document.querySelectorAll('input');
+      inputs.forEach(input => {
+        input.addEventListener('focus', function () {
+          this.parentElement.classList.add('scale-105');
+        });
+        input.addEventListener('blur', function () {
+          this.parentElement.classList.remove('scale-105');
+        });
+      });
+    });
+  </script>
+
+</body>
+
+</html>

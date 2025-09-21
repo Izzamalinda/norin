@@ -1,0 +1,462 @@
+<%- include('partials/sidebarAdmin') %>
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard Admin - Food Management</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+  <style>
+    .stats-card {
+      background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+      transition: all 0.3s ease;
+    }
+    
+    .stats-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+    }
+    
+    .chart-container {
+      background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    }
+    
+    .fade-in {
+      animation: fadeIn 0.6s ease-out;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .counter-animation {
+      animation: countUp 1s ease-out;
+    }
+    
+    @keyframes countUp {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    
+    .gradient-bg {
+      background: linear-gradient(135deg, #f97316 0%, #ea580c 50%, #dc2626 100%);
+    }
+    
+    .icon-bounce:hover {
+      animation: bounce 0.4s ease-in-out;
+    }
+    
+    @keyframes bounce {
+      0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+      40% { transform: translateY(-8px); }
+      60% { transform: translateY(-4px); }
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-gray-100 via-orange-50 to-red-50 text-gray-800">
+
+
+  <!-- Wrapper dengan margin untuk sidebar -->
+  <div class="ml-64 min-h-screen w-[calc(100%-16rem)] p-6">
+    
+    <!-- Dashboard Content -->
+    <div class="p-6">
+      
+      <!-- Header -->
+      <div class="fade-in mb-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <h1 class="text-2xl font-bold text-gray-800 mb-1">
+              <i class="fas fa-chart-pie text-orange-500 mr-3"></i>
+              Dashboard Overview
+            </h1>
+            <p class="text-gray-600 text-sm">Monitoring sistem dan analytics real-time</p>
+          </div>
+          <div class="flex items-center space-x-3">
+            <div class="bg-white rounded-xl px-3 py-2 shadow-md border border-gray-100">
+              <i class="fas fa-calendar text-orange-500 mr-2"></i>
+              <span class="text-xs font-medium text-gray-700" id="currentDate"></span>
+            </div>
+            <div class="bg-gradient-to-r from-orange-500 to-red-600 text-white rounded-xl px-3 py-2 shadow-md">
+              <i class="fas fa-clock mr-2"></i>
+              <span class="text-xs font-medium" id="currentTime"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats Cards Row -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        
+        <!-- Total Revenue -->
+        <div class="stats-card rounded-xl shadow-md p-4 border border-gray-100 fade-in">
+          <div class="flex items-center justify-between">
+            <div class="flex-1">
+              <p class="text-gray-600 text-xs font-medium mb-1">Total Revenue Hari Ini</p>
+              <h3 class="text-lg font-bold text-gray-800 counter-animation" data-target="8750000" data-prefix="Rp ">Rp 0</h3>
+              <div class="flex items-center mt-1">
+                <i class="fas fa-arrow-up text-green-500 text-xs mr-1"></i>
+                <span class="text-green-500 text-xs font-medium">+18.2%</span>
+                <span class="text-gray-500 text-xs ml-1">vs kemarin</span>
+              </div>
+            </div>
+            <div class="icon-bounce w-11 h-11 gradient-bg rounded-xl flex items-center justify-center shadow-md flex-shrink-0 ml-3">
+              <i class="fas fa-money-bill-wave text-white text-base"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- Total Orders -->
+        <div class="stats-card rounded-xl shadow-md p-4 border border-gray-100 fade-in" style="animation-delay: 0.1s">
+          <div class="flex items-center justify-between">
+            <div class="flex-1">
+              <p class="text-gray-600 text-xs font-medium mb-1">Total Pesanan</p>
+              <h3 class="text-lg font-bold text-gray-800 counter-animation" data-target="247">0</h3>
+              <div class="flex items-center mt-1">
+                <i class="fas fa-arrow-up text-green-500 text-xs mr-1"></i>
+                <span class="text-green-500 text-xs font-medium">+12.5%</span>
+                <span class="text-gray-500 text-xs ml-1">vs kemarin</span>
+              </div>
+            </div>
+            <div class="icon-bounce w-11 h-11 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-md flex-shrink-0 ml-3">
+              <i class="fas fa-shopping-cart text-white text-base"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- Active Menu Items -->
+        <div class="stats-card rounded-xl shadow-md p-4 border border-gray-100 fade-in" style="animation-delay: 0.2s">
+          <div class="flex items-center justify-between">
+            <div class="flex-1">
+              <p class="text-gray-600 text-xs font-medium mb-1">Menu Aktif</p>
+              <h3 class="text-lg font-bold text-gray-800 counter-animation" data-target="45">0</h3>
+              <div class="flex items-center mt-1">
+                <i class="fas fa-arrow-up text-green-500 text-xs mr-1"></i>
+                <span class="text-green-500 text-xs font-medium">+5 item</span>
+                <span class="text-gray-500 text-xs ml-1">minggu ini</span>
+              </div>
+            </div>
+            <div class="icon-bounce w-11 h-11 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center shadow-md flex-shrink-0 ml-3">
+              <i class="fas fa-utensils text-white text-base"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- Active Customers -->
+        <div class="stats-card rounded-xl shadow-md p-4 border border-gray-100 fade-in" style="animation-delay: 0.3s">
+          <div class="flex items-center justify-between">
+            <div class="flex-1">
+              <p class="text-gray-600 text-xs font-medium mb-1">Customer Aktif</p>
+              <h3 class="text-lg font-bold text-gray-800 counter-animation" data-target="1847">0</h3>
+              <div class="flex items-center mt-1">
+                <i class="fas fa-arrow-up text-green-500 text-xs mr-1"></i>
+                <span class="text-green-500 text-xs font-medium">+24.1%</span>
+                <span class="text-gray-500 text-xs ml-1">bulan ini</span>
+              </div>
+            </div>
+            <div class="icon-bounce w-11 h-11 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center shadow-md flex-shrink-0 ml-3">
+              <i class="fas fa-users text-white text-base"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts & Analytics Row -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+        
+        <!-- Sales Analytics Chart -->
+        <div class="lg:col-span-2 chart-container rounded-xl shadow-md p-4 border border-gray-100 fade-in" style="animation-delay: 0.4s">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-base font-bold text-gray-800">
+              <i class="fas fa-chart-line text-orange-500 mr-2"></i>
+              Analytics Penjualan
+            </h3>
+            <select id="salesPeriod" class="bg-gray-50 border border-gray-200 rounded-lg px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-orange-500">
+              <option value="7">7 Hari Terakhir</option>
+              <option value="30">30 Hari Terakhir</option>
+              <option value="90">3 Bulan Terakhir</option>
+            </select>
+          </div>
+          <div style="height: 200px;">
+            <canvas id="salesChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Top Categories -->
+        <div class="chart-container rounded-xl shadow-md p-4 border border-gray-100 fade-in" style="animation-delay: 0.5s">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-base font-bold text-gray-800">
+              <i class="fas fa-star text-yellow-500 mr-2"></i>
+              Kategori Terlaris
+            </h3>
+            <span class="text-xs text-gray-500">Real-time</span>
+          </div>
+          <div class="flex justify-center" style="height: 140px;">
+            <canvas id="categoryChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Section: Recent Orders & Quick Stats -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        
+        <!-- Recent Orders -->
+        <div class="lg:col-span-2 chart-container rounded-xl shadow-md p-4 border border-gray-100 fade-in" style="animation-delay: 0.6s">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-base font-bold text-gray-800">
+              <i class="fas fa-clock text-blue-500 mr-2"></i>
+              Aktivitas Terkini
+            </h3>
+            <a href="#" class="text-orange-500 hover:text-orange-600 font-medium text-xs transition-colors">
+              Lihat Semua →
+            </a>
+          </div>
+          
+          <div class="space-y-2" id="recentOrdersList">
+            <!-- Orders akan dimuat dari backend -->
+            <div class="flex items-center justify-between p-2 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+              <div class="flex items-center space-x-2">
+                <div class="w-8 h-8 bg-gradient-to-br from-orange-400 to-red-500 rounded-full flex items-center justify-center">
+                  <i class="fas fa-utensils text-white text-xs"></i>
+                </div>
+                <div>
+                  <h4 class="font-semibold text-gray-800 text-sm">Pesanan Baru #ORD-2024-001</h4>
+                  <p class="text-gray-600 text-xs">Nasi Gudeg Spesial • 2 item • 2 menit lalu</p>
+                </div>
+              </div>
+              <div class="text-right">
+                <p class="font-bold text-gray-800 text-xs">Rp 85.000</p>
+                <span class="inline-flex items-center px-2 py-1 bg-orange-100 text-orange-800 text-xs font-medium rounded-full">
+                  Pending
+                </span>
+              </div>
+            </div>
+            
+            <div class="flex items-center justify-between p-2 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+              <div class="flex items-center space-x-2">
+                <div class="w-8 h-8 bg-gradient-to-br from-green-400 to-green-500 rounded-full flex items-center justify-center">
+                  <i class="fas fa-check text-white text-xs"></i>
+                </div>
+                <div>
+                  <h4 class="font-semibold text-gray-800 text-sm">Pesanan Selesai #ORD-2024-002</h4>
+                  <p class="text-gray-600 text-xs">Ayam Bakar Rica • 1 item • 5 menit lalu</p>
+                </div>
+              </div>
+              <div class="text-right">
+                <p class="font-bold text-gray-800 text-xs">Rp 45.000</p>
+                <span class="inline-flex items-center px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full">
+                  Completed
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Actions Panel -->
+        <div class="chart-container rounded-xl shadow-md p-4 border border-gray-100 fade-in" style="animation-delay: 0.7s">
+          <h3 class="text-base font-bold text-gray-800 mb-4">
+            <i class="fas fa-bolt text-orange-500 mr-2"></i>
+            Aksi Cepat
+          </h3>
+          
+          <!-- Quick Action Buttons -->
+          <div class="space-y-3 mb-6">
+            <button class="w-full flex items-center space-x-3 p-3 bg-gradient-to-r from-orange-500 to-red-600 text-white rounded-lg hover:from-orange-600 hover:to-red-700 transition-all transform hover:scale-105 shadow-md">
+              <i class="fas fa-plus text-base"></i>
+              <span class="font-semibold text-sm">Tambah Menu Baru</span>
+            </button>
+            
+            <button class="w-full flex items-center space-x-3 p-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all transform hover:scale-105 shadow-md">
+              <i class="fas fa-eye text-base"></i>
+              <span class="font-semibold text-sm">Lihat Semua Pesanan</span>
+            </button>
+            
+            <button class="w-full flex items-center space-x-3 p-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:from-green-600 hover:to-green-700 transition-all transform hover:scale-105 shadow-md">
+              <i class="fas fa-download text-base"></i>
+              <span class="font-semibold text-sm">Export Laporan</span>
+            </button>
+          </div>
+
+          <!-- Status Summary -->
+          <div class="border-t pt-4">
+            <h4 class="text-sm font-semibold text-gray-700 mb-3">Status Ringkas</h4>
+            <div class="space-y-2">
+              <div class="flex justify-between items-center">
+                <span class="text-xs text-gray-600">Pesanan Aktif</span>
+                <span class="text-xs font-semibold text-orange-600">12 pesanan</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-xs text-gray-600">Menu Terlaris</span>
+                <span class="text-xs font-semibold text-green-600">Nasi Gudeg</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Real-time date and time
+    function updateDateTime() {
+      const now = new Date();
+      const options = { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      };
+      document.getElementById('currentDate').textContent = now.toLocaleDateString('id-ID', options);
+      document.getElementById('currentTime').textContent = now.toLocaleTimeString('id-ID');
+    }
+    
+    updateDateTime();
+    setInterval(updateDateTime, 1000);
+
+    // Counter animations
+    function animateCounters() {
+      const counters = document.querySelectorAll('.counter-animation');
+      counters.forEach(counter => {
+        const target = parseInt(counter.getAttribute('data-target'));
+        const prefix = counter.getAttribute('data-prefix') || '';
+        let current = 0;
+        const increment = target / 100;
+        const timer = setInterval(() => {
+          current += increment;
+          if (current >= target) {
+            current = target;
+            clearInterval(timer);
+          }
+          if (prefix) {
+            counter.textContent = prefix + Math.floor(current).toLocaleString('id-ID');
+          } else {
+            counter.textContent = Math.floor(current).toLocaleString('id-ID');
+          }
+        }, 20);
+      });
+    }
+
+    // Chart initialization
+    document.addEventListener('DOMContentLoaded', function() {
+      animateCounters();
+
+      // Sales Chart - Ready for backend integration
+      const salesCtx = document.getElementById('salesChart').getContext('2d');
+      const salesChart = new Chart(salesCtx, {
+        type: 'line',
+        data: {
+          labels: ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'],
+          datasets: [{
+            label: 'Revenue',
+            data: [5200000, 7800000, 9400000, 6900000, 8750000, 11200000, 9800000], // Data dari backend
+            borderColor: 'rgb(249, 115, 22)',
+            backgroundColor: 'rgba(249, 115, 22, 0.1)',
+            borderWidth: 3,
+            fill: true,
+            tension: 0.4,
+            pointRadius: 4,
+            pointHoverRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                callback: function(value) {
+                  return 'Rp ' + (value/1000000).toFixed(1) + 'M';
+                }
+              }
+            },
+            x: {
+              grid: { display: false }
+            }
+          }
+        }
+      });
+
+      // Category Chart - Ready for backend data
+      const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+      new Chart(categoryCtx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Nasi', 'Ayam', 'Ikan', 'Vegetarian', 'Minuman'],
+          datasets: [{
+            data: [35, 25, 20, 12, 8], // Persentase dari backend
+            backgroundColor: [
+              '#f97316', '#3b82f6', '#10b981', '#8b5cf6', '#f59e0b'
+            ],
+            borderWidth: 2,
+            borderColor: '#ffffff'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: {
+                padding: 8,
+                usePointStyle: true,
+                font: { size: 10 }
+              }
+            }
+          }
+        }
+      });
+
+      // Period change handler for backend integration
+      document.getElementById('salesPeriod').addEventListener('change', function() {
+        // Akan memanggil API untuk update data chart
+        const period = this.value;
+        console.log('Fetch data for period:', period);
+        // fetchSalesData(period);
+      });
+    });
+
+    // Function untuk integrasi backend
+    function fetchSalesData(period) {
+      // Implementasi fetch ke backend API
+      fetch(`/api/sales-data?period=${period}`)
+        .then(response => response.json())
+        .then(data => {
+          // Update chart dengan data baru
+          salesChart.data.labels = data.labels;
+          salesChart.data.datasets[0].data = data.values;
+          salesChart.update();
+        });
+    }
+
+    function fetchRecentOrders() {
+      // Fetch recent orders from backend
+      fetch('/api/recent-orders')
+        .then(response => response.json())
+        .then(orders => {
+          // Update recent orders list
+          const container = document.getElementById('recentOrdersList');
+          container.innerHTML = orders.map(order => `
+            <div class="flex items-center justify-between p-2 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+              <!-- Order template -->
+            </div>
+          `).join('');
+        });
+    }
+
+    // Auto-refresh data every 30 seconds
+    setInterval(() => {
+      fetchRecentOrders();
+      // fetchDashboardStats();
+    }, 30000);
+  </script>
+
+</body>
+</html>
