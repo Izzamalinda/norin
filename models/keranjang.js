@@ -5,9 +5,9 @@ module.exports = (sequelize, DataTypes) => {
   class Keranjang extends Model {
     static associate(models) {
       // Keranjang berisi 1 menu
-      Keranjang.belongsTo(models.menu, { foreignKey: 'id_menu' });
+      Keranjang.belongsTo(models.Menu, { foreignKey: 'id_menu' });
       // Keranjang bisa dipakai di banyak pesanan
-      Keranjang.hasMany(models.pesanan, { foreignKey: 'id_keranjang' });
+      Keranjang.hasMany(models.Pesanan, { foreignKey: 'id_keranjang' });
     }
   }
 

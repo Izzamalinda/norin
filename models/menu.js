@@ -5,10 +5,7 @@ module.exports = (sequelize, DataTypes) => {
   class Menu extends Model {
     static associate(models) {
       // Relasi: 1 Menu bisa ada di banyak Keranjang
-      Menu.hasMany(models.keranjang, { foreignKey: 'id_menu' });
-
-      // Relasi: 1 Menu bisa dapat banyak Review
-      Menu.hasMany(models.review, { foreignKey: 'id_menu' });
+      Menu.hasMany(models.Keranjang, { foreignKey: 'id_menu' });
     }
   }
 
