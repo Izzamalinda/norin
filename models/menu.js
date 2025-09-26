@@ -39,7 +39,20 @@ module.exports = (sequelize, DataTypes) => {
     sequelize,
     modelName: 'Menu',
     tableName: 'menu',
-    timestamps: false
+    timestamps: false,
+    hooks: {
+      beforeCreate: async (menu, options) => {
+        const lastMenu = await Menu.findOne({
+          order: [['id_menu', 'DESC']]
+        });
+        let newId = "M001";
+        if (lastMenu) {
+          const lastIdNum = parseInt(lastMenu.id_menu.substring(1));
+          newId = "M" + String(lastIdNum + 1).padStart(3, "0");
+        }
+        menu.id_menu = newId;
+      }
+    }
   });
 
   return Menu;

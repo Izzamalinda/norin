@@ -1,0 +1,584 @@
+<%- include('partials/sidebarAdmin') %>
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+  body { font-family: 'Inter', sans-serif; }
+  
+  .card-shadow {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    transition: box-shadow 0.3s ease;
+  }
+  
+  .card-shadow:hover {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  }
+  
+  .btn-hover {
+    transition: all 0.2s ease;
+    transform: translateY(0);
+  }
+  
+  .btn-hover:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+  
+  .orange-btn {
+    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+  }
+  
+  .orange-btn:hover {
+    background: linear-gradient(135deg, #ea580c 0%, #dc2626 100%);
+  }
+  
+  .modal-backdrop {
+    backdrop-filter: blur(4px);
+    transition: all 0.3s ease;
+  }
+  
+  .modal-content {
+    transform: scale(0.9);
+    opacity: 0;
+    transition: all 0.3s ease;
+  }
+  
+  .modal-show .modal-content {
+    transform: scale(1);
+    opacity: 1;
+  }
+  
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+  }
+  
+  .status-tersedia {
+    background-color: #d1fae5;
+    color: #065f46;
+  }
+  
+  .status-habis {
+    background-color: #fee2e2;
+    color: #991b1b;
+  }
+  
+  .table-animate tr {
+    transition: all 0.3s ease;
+  }
+  
+  .success-popup {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    transform: translateX(400px);
+    transition: all 0.5s ease;
+  }
+  
+  .success-popup.show {
+    transform: translateX(0);
+  }
+  
+  .success-popup.hide {
+    transform: translateX(400px);
+  }
+  
+  .floating-action {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    z-index: 1000;
+  }
+  
+  @media (max-width: 768px) {
+    .floating-action {
+      bottom: 1rem;
+      right: 1rem;
+    }
+    
+    .success-popup {
+      right: 10px;
+      left: 10px;
+      transform: translateY(-100px);
+    }
+    
+    .success-popup.show {
+      transform: translateY(0);
+    }
+    
+    .success-popup.hide {
+      transform: translateY(-100px);
+    }
+  }
+</style>
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+
+<div class="ml-64 min-h-screen p-4 w-full">
+  <!-- Header Section -->
+  <div class="bg-white rounded-xl card-shadow p-6 mb-6">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div>
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">
+          <i class="fas fa-utensils text-blue-600 mr-3"></i>
+          Kelola Menu
+        </h1>
+        <p class="text-gray-600">Kelola menu restoran Anda dengan mudah</p>
+      </div>
+      
+      <!-- Desktop Add Button -->
+      <button onclick="openAddModal()" 
+        class="hidden sm:flex items-center px-6 py-3 orange-btn text-white rounded-xl btn-hover font-medium">
+        <i class="fas fa-plus mr-2"></i>
+        Tambah Menu
+      </button>
+    </div>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+    <div class="bg-white rounded-xl card-shadow p-6">
+      <div class="flex items-center">
+        <div class="p-3 rounded-full bg-blue-100 text-blue-600">
+          <i class="fas fa-utensils text-xl"></i>
+        </div>
+        <div class="ml-4">
+          <p class="text-sm font-medium text-gray-600">Total Menu</p>
+          <p class="text-2xl font-semibold text-gray-900"><%= menus.length %></p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="bg-white rounded-xl card-shadow p-6">
+      <div class="flex items-center">
+        <div class="p-3 rounded-full bg-green-100 text-green-600">
+          <i class="fas fa-check-circle text-xl"></i>
+        </div>
+        <div class="ml-4">
+          <p class="text-sm font-medium text-gray-600">Tersedia</p>
+          <p class="text-2xl font-semibold text-gray-900"><%= menus.filter(menu => menu.status_menu === 'tersedia').length %></p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="bg-white rounded-xl card-shadow p-6">
+      <div class="flex items-center">
+        <div class="p-3 rounded-full bg-red-100 text-red-600">
+          <i class="fas fa-times-circle text-xl"></i>
+        </div>
+        <div class="ml-4">
+          <p class="text-sm font-medium text-gray-600">Habis</p>
+          <p class="text-2xl font-semibold text-gray-900"><%= menus.filter(menu => menu.status_menu === 'habis').length %></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Table Section -->
+  <div class="bg-white rounded-xl card-shadow overflow-hidden">
+    <div class="px-6 py-4 border-b border-gray-200">
+      <h2 class="text-xl font-semibold text-gray-900">Daftar Menu</h2>
+    </div>
+    
+    <div class="overflow-x-auto">
+      <table class="min-w-full table-animate">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-4 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/5">Nama Menu</th>
+            <th class="px-4 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/4">Deskripsi</th>
+            <th class="px-4 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/8">Harga</th>
+            <th class="px-4 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/8">Status</th>
+            <th class="px-4 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/8">Foto</th>
+            <th class="px-4 py-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-1/8">Aksi</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <% menus.forEach(menu => { %>
+            <tr class="hover:bg-gray-50">
+              <td class="px-4 py-4">
+                <div class="text-sm font-medium text-gray-900"><%= menu.nama %></div>
+              </td>
+              <td class="px-4 py-4">
+                <div class="text-sm text-gray-600"><%= menu.deskripsi %></div>
+              </td>
+              <td class="px-4 py-4">
+                <div class="text-sm font-semibold text-gray-900">Rp <%= menu.harga.toLocaleString("id-ID") %></div>
+              </td>
+              <td class="px-4 py-4">
+                <span class="status-badge <%= menu.status_menu === 'tersedia' ? 'status-tersedia' : 'status-habis' %>">
+                  <i class="fas fa-circle text-xs mr-1"></i>
+                  <%= menu.status_menu === 'tersedia' ? 'Tersedia' : 'Habis' %>
+                </span>
+              </td>
+              <td class="px-4 py-4">
+                <% if (menu.foto) { %>
+                  <img src="<%= menu.foto %>" alt="Menu" class="w-12 h-12 object-cover rounded-lg">
+                <% } else { %>
+                  <div class="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-image text-gray-400"></i>
+                  </div>
+                <% } %>
+              </td>
+              <td class="px-4 py-4 text-center">
+                <div class="flex justify-center space-x-2">
+                  <button onclick="openEditModal('<%= menu.id_menu %>', '<%= menu.nama %>', '<%= menu.harga %>', '<%= menu.deskripsi %>', '<%= menu.status_menu %>')" 
+                    class="btn-hover p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Edit Menu">
+                    <i class="fas fa-edit"></i>
+                  </button>
+                  <button onclick="confirmDelete('<%= menu.id_menu %>', '<%= menu.nama %>')" 
+                    class="btn-hover p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Hapus Menu">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    
+    <% if (menus.length === 0) { %>
+      <div class="text-center py-12">
+        <i class="fas fa-utensils text-4xl text-gray-400 mb-4"></i>
+        <h3 class="text-lg font-medium text-gray-900 mb-2">Belum ada menu</h3>
+        <p class="text-gray-500 mb-6">Mulai tambahkan menu untuk restoran Anda</p>
+        <button onclick="openAddModal()" 
+          class="inline-flex items-center px-6 py-3 orange-btn text-white rounded-xl btn-hover font-medium">
+          <i class="fas fa-plus mr-2"></i>
+          Tambah Menu Pertama
+        </button>
+      </div>
+    <% } %>
+  </div>
+</div>
+
+<!-- Floating Action Button (Mobile) -->
+<button onclick="openAddModal()" 
+  class="floating-action sm:hidden flex items-center justify-center w-14 h-14 orange-btn text-white rounded-full shadow-lg btn-hover">
+  <i class="fas fa-plus text-xl"></i>
+</button>
+
+<!-- Modal Tambah Menu -->
+<div id="addModal" class="hidden fixed inset-0 bg-black bg-opacity-50 modal-backdrop flex justify-center items-center z-50">
+  <div class="modal-content bg-white rounded-2xl p-6 w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
+    <div class="flex items-center justify-between mb-6">
+      <h2 class="text-2xl font-bold text-gray-900">
+        <i class="fas fa-plus-circle text-orange-600 mr-2"></i>
+        Tambah Menu
+      </h2>
+      <button onclick="closeAddModal()" class="p-2 hover:bg-gray-100 rounded-full transition-colors">
+        <i class="fas fa-times text-gray-400"></i>
+      </button>
+    </div>
+    
+    <form action="/admin/kelola-menu" method="POST" enctype="multipart/form-data" class="space-y-4" onsubmit="handleAddSubmit(event)">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Nama Menu</label>
+        <input type="text" name="nama" placeholder="Masukkan nama menu" 
+               class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all" required>
+      </div>
+      
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Harga</label>
+        <div class="relative">
+          <span class="absolute left-3 top-3 text-gray-500">Rp</span>
+          <input type="number" name="harga" placeholder="0" 
+                 class="w-full border border-gray-300 rounded-lg pl-10 pr-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all" required>
+        </div>
+      </div>
+      
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Deskripsi</label>
+        <textarea name="deskripsi" placeholder="Deskripsi menu..." rows="3"
+                  class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all resize-none"></textarea>
+      </div>
+      
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+        <select name="status_menu" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all">
+          <option value="tersedia">Tersedia</option>
+          <option value="habis">Habis</option>
+        </select>
+      </div>
+      
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Foto Menu</label>
+        <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-orange-500 transition-colors">
+          <input type="file" name="foto" accept="image/*" class="hidden" id="addFotoInput">
+          <label for="addFotoInput" class="cursor-pointer">
+            <i class="fas fa-cloud-upload-alt text-3xl text-gray-400 mb-2 block"></i>
+            <span class="text-sm text-gray-600">Klik untuk upload foto</span>
+          </label>
+        </div>
+      </div>
+      
+      <div class="flex justify-end space-x-3 pt-4 border-t">
+        <button type="button" onclick="closeAddModal()" 
+                class="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium">
+          Batal
+        </button>
+        <button type="submit" 
+                class="px-6 py-3 orange-btn text-white rounded-lg btn-hover font-medium">
+          <i class="fas fa-save mr-2"></i>
+          Simpan Menu
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal Edit Menu -->
+<div id="editModal" class="hidden fixed inset-0 bg-black bg-opacity-50 modal-backdrop flex justify-center items-center z-50">
+  <div class="modal-content bg-white rounded-2xl p-6 w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
+    <div class="flex items-center justify-between mb-6">
+      <h2 class="text-2xl font-bold text-gray-900">
+        <i class="fas fa-edit text-orange-600 mr-2"></i>
+        Edit Menu
+      </h2>
+      <button onclick="closeEditModal()" class="p-2 hover:bg-gray-100 rounded-full transition-colors">
+        <i class="fas fa-times text-gray-400"></i>
+      </button>
+    </div>
+    
+    <form id="editForm" method="POST" enctype="multipart/form-data" class="space-y-4" onsubmit="handleEditSubmit(event)">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Nama Menu</label>
+        <input type="text" id="editNama" name="nama" 
+               class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all" required>
+      </div>
+      
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Harga</label>
+        <div class="relative">
+          <span class="absolute left-3 top-3 text-gray-500">Rp</span>
+          <input type="number" id="editHarga" name="harga" 
+                 class="w-full border border-gray-300 rounded-lg pl-10 pr-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all" required>
+        </div>
+      </div>
+      
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Deskripsi</label>
+        <textarea id="editDeskripsi" name="deskripsi" rows="3"
+                  class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all resize-none"></textarea>
+      </div>
+      
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+        <select id="editStatus" name="status_menu" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all">
+          <option value="tersedia">Tersedia</option>
+          <option value="habis">Habis</option>
+        </select>
+      </div>
+      
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Foto Menu</label>
+        <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-orange-500 transition-colors">
+          <input type="file" name="foto" accept="image/*" class="hidden" id="editFotoInput">
+          <label for="editFotoInput" class="cursor-pointer">
+            <i class="fas fa-cloud-upload-alt text-3xl text-gray-400 mb-2 block"></i>
+            <span class="text-sm text-gray-600">Klik untuk upload foto baru</span>
+          </label>
+        </div>
+      </div>
+      
+      <div class="flex justify-end space-x-3 pt-4 border-t">
+        <button type="button" onclick="closeEditModal()" 
+                class="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium">
+          Batal
+        </button>
+        <button type="submit" 
+                class="px-6 py-3 orange-btn text-white rounded-lg hover:bg-orange-600 transition-colors font-medium">
+          <i class="fas fa-save mr-2"></i>
+          Update Menu
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal Konfirmasi Hapus -->
+<div id="deleteModal" class="hidden fixed inset-0 bg-black bg-opacity-50 modal-backdrop flex justify-center items-center z-50">
+  <div class="modal-content bg-white rounded-2xl p-6 w-full max-w-md mx-4">
+    <div class="text-center">
+      <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+        <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
+      </div>
+      <h3 class="text-lg font-semibold text-gray-900 mb-2">Konfirmasi Hapus</h3>
+      <p class="text-sm text-gray-500 mb-6">
+        Apakah Anda yakin ingin menghapus menu <strong id="deleteMenuName"></strong>? 
+        Tindakan ini tidak dapat dibatalkan.
+      </p>
+      
+      <div class="flex justify-center space-x-3">
+        <button onclick="closeDeleteModal()" 
+                class="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium">
+          Batal
+        </button>
+        <button id="confirmDeleteBtn"
+                class="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium">
+          <i class="fas fa-trash mr-2"></i>
+          Ya, Hapus
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Success Notification Popup -->
+<div id="successPopup" class="success-popup bg-green-500 text-white px-6 py-4 rounded-lg shadow-lg flex items-center space-x-3">
+  <div class="flex-shrink-0">
+    <i class="fas fa-check-circle text-xl"></i>
+  </div>
+  <div class="flex-1">
+    <p class="font-semibold" id="successTitle">Berhasil!</p>
+    <p class="text-sm" id="successMessage">Operasi berhasil dilakukan</p>
+  </div>
+  <button onclick="hideSuccessPopup()" class="flex-shrink-0 text-white hover:text-gray-200">
+    <i class="fas fa-times"></i>
+  </button>
+</div>
+
+<script>
+  // Variables for delete confirmation
+  let currentDeleteId = null;
+  
+  // Success popup functions
+  function showSuccessPopup(title, message) {
+    document.getElementById('successTitle').textContent = title;
+    document.getElementById('successMessage').textContent = message;
+    const popup = document.getElementById('successPopup');
+    popup.classList.add('show');
+    
+    // Auto hide after 4 seconds
+    setTimeout(() => {
+      hideSuccessPopup();
+    }, 4000);
+  }
+  
+  function hideSuccessPopup() {
+    const popup = document.getElementById('successPopup');
+    popup.classList.remove('show');
+    popup.classList.add('hide');
+    
+    setTimeout(() => {
+      popup.classList.remove('hide');
+    }, 500);
+  }
+  
+  // Form submission handlers
+  function handleAddSubmit(event) {
+    // Let the form submit normally
+    // Show success message after page reload (you can modify this based on your backend response)
+    localStorage.setItem('showSuccessMessage', JSON.stringify({
+      title: 'Menu Berhasil Ditambahkan!',
+      message: 'Menu baru telah ditambahkan ke daftar menu'
+    }));
+  }
+  
+  function handleEditSubmit(event) {
+    // Let the form submit normally
+    // Show success message after page reload
+    localStorage.setItem('showSuccessMessage', JSON.stringify({
+      title: 'Menu Berhasil Diedit!',
+      message: 'Perubahan menu telah disimpan'
+    }));
+  }
+  
+  // Check for success message on page load
+  window.addEventListener('load', function() {
+    const successMessage = localStorage.getItem('showSuccessMessage');
+    if (successMessage) {
+      const messageData = JSON.parse(successMessage);
+      setTimeout(() => {
+        showSuccessPopup(messageData.title, messageData.message);
+      }, 500);
+      localStorage.removeItem('showSuccessMessage');
+    }
+  });
+  
+  // Modal functions
+  function openAddModal() {
+    const modal = document.getElementById("addModal");
+    modal.classList.remove("hidden");
+    setTimeout(() => modal.classList.add("modal-show"), 10);
+  }
+  
+  function closeAddModal() {
+    const modal = document.getElementById("addModal");
+    modal.classList.remove("modal-show");
+    setTimeout(() => modal.classList.add("hidden"), 300);
+  }
+
+  function openEditModal(id, nama, harga, deskripsi, status_menu) {
+    document.getElementById("editForm").action = "/admin/kelola-menu/" + id + "/update";
+    document.getElementById("editNama").value = nama;
+    document.getElementById("editHarga").value = harga;
+    document.getElementById("editDeskripsi").value = deskripsi;
+    document.getElementById("editStatus").value = status_menu;
+    
+    const modal = document.getElementById("editModal");
+    modal.classList.remove("hidden");
+    setTimeout(() => modal.classList.add("modal-show"), 10);
+  }
+  
+  function closeEditModal() {
+    const modal = document.getElementById("editModal");
+    modal.classList.remove("modal-show");
+    setTimeout(() => modal.classList.add("hidden"), 300);
+  }
+
+  function confirmDelete(id, menuName) {
+    currentDeleteId = id;
+    document.getElementById("deleteMenuName").textContent = menuName;
+    
+    const modal = document.getElementById("deleteModal");
+    modal.classList.remove("hidden");
+    setTimeout(() => modal.classList.add("modal-show"), 10);
+    
+    // Set up the confirm button
+    document.getElementById("confirmDeleteBtn").onclick = function() {
+      executeDelete(id);
+    };
+  }
+  
+  function closeDeleteModal() {
+    const modal = document.getElementById("deleteModal");
+    modal.classList.remove("modal-show");
+    setTimeout(() => modal.classList.add("hidden"), 300);
+    currentDeleteId = null;
+  }
+  
+  function executeDelete(id) {
+    // Create and submit form for deletion
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = `/admin/kelola-menu/${id}/delete`;
+    form.style.display = 'none';
+    document.body.appendChild(form);
+    form.submit();
+  }
+
+  // Close modals when clicking outside
+  document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('modal-backdrop')) {
+      closeAddModal();
+      closeEditModal();
+      closeDeleteModal();
+    }
+  });
+
+  // Close modals with Escape key
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      closeAddModal();
+      closeEditModal();
+      closeDeleteModal();
+    }
+  });
+</script>

@@ -2,6 +2,7 @@ const express = require("express");
 const path = require("path");
 const ejs = require("ejs");
 const session = require("express-session");
+
 require("dotenv").config();
 
 const { sequelize } = require("./models"); // pakai models/index.js
@@ -16,6 +17,8 @@ const PORT = process.env.PORT || 3000;
 // ========== Setup view engine ==========
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
+
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // ========== Middleware ==========
 app.use(express.urlencoded({ extended: true }));
