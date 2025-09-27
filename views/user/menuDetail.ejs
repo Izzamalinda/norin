@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title><%= menu.nama %></title>
+</head>
+<body>
+  <h1><%= menu.nama %></h1>
+  <p><strong>Harga:</strong> Rp <%= menu.harga %></p>
+  <p><strong>Deskripsi:</strong> <%= menu.deskripsi %></p>
+  <p><strong>Status:</strong> <%= menu.status_menu %></p>
+  <p><strong>Kategori:</strong> <%= menu.kategori || '-' %></p>
+
+  <a href="/menu">⬅ Kembali ke daftar menu</a>
+</body>
+</html>

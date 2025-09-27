@@ -58,12 +58,12 @@
     letter-spacing: 0.025em;
   }
   
-  .status-tersedia {
+  .status-available {
     background-color: #d1fae5;
     color: #065f46;
   }
   
-  .status-habis {
+  .status-unavailable {
     background-color: #fee2e2;
     color: #991b1b;
   }
@@ -163,7 +163,7 @@
         </div>
         <div class="ml-4">
           <p class="text-sm font-medium text-gray-600">Tersedia</p>
-          <p class="text-2xl font-semibold text-gray-900"><%= menus.filter(menu => menu.status_menu === 'tersedia').length %></p>
+          <p class="text-2xl font-semibold text-gray-900"><%= menus.filter(menu => menu.status_menu === 'available').length %></p>
         </div>
       </div>
     </div>
@@ -175,7 +175,7 @@
         </div>
         <div class="ml-4">
           <p class="text-sm font-medium text-gray-600">Habis</p>
-          <p class="text-2xl font-semibold text-gray-900"><%= menus.filter(menu => menu.status_menu === 'habis').length %></p>
+          <p class="text-2xl font-semibold text-gray-900"><%= menus.filter(menu => menu.status_menu === 'unavailable').length %></p>
         </div>
       </div>
     </div>
@@ -212,9 +212,9 @@
                 <div class="text-sm font-semibold text-gray-900">Rp <%= menu.harga.toLocaleString("id-ID") %></div>
               </td>
               <td class="px-4 py-4">
-                <span class="status-badge <%= menu.status_menu === 'tersedia' ? 'status-tersedia' : 'status-habis' %>">
+                <span class="status-badge <%= menu.status_menu === 'available' ? 'status-available' : 'status-unavailable' %>">
                   <i class="fas fa-circle text-xs mr-1"></i>
-                  <%= menu.status_menu === 'tersedia' ? 'Tersedia' : 'Habis' %>
+                  <%= menu.status_menu === 'available' ? 'Tersedia' : 'Habis' %>
                 </span>
               </td>
               <td class="px-4 py-4">
@@ -302,8 +302,8 @@
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
         <select name="status_menu" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all">
-          <option value="tersedia">Tersedia</option>
-          <option value="habis">Habis</option>
+          <option value="available">Tersedia</option>
+          <option value="unavailable">Habis</option>
         </select>
       </div>
       
@@ -371,8 +371,8 @@
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
         <select id="editStatus" name="status_menu" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all">
-          <option value="tersedia">Tersedia</option>
-          <option value="habis">Habis</option>
+          <option value="available">Tersedia</option>
+          <option value="unavailable">Habis</option>
         </select>
       </div>
       

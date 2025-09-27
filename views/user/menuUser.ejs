@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Menu Norin Cafe</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    body {
+      /* Warna latar belakang sesuai estetika kode frontend (putih-krem gradien) */
+      background: linear-gradient(135deg, #fef7f0 0%, #fff8f2 100%); 
+    }
+    .glass-effect {
+      /* Efek kaca pada background card/sidebar */
+      backdrop-filter: blur(10px);
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+    .card-hover {
+      /* Efek hover pada kartu menu */
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .card-hover:hover {
+      transform: translateY(-8px) scale(1.02);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    }
+    .gradient-text {
+      /* Warna gradien oranye untuk judul/teks utama */
+      background: linear-gradient(45deg, #ea580c, #fb923c); /* orange-600 ke orange-400 */
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .search-input {
+      /* Styling khusus untuk input pencarian */
+      border: 2px solid #fdba74; /* orange-300 */
+      transition: all 0.3s;
+    }
+    .search-input:focus {
+      border-color: transparent;
+      box-shadow: 0 0 0 2px #f97316; /* orange-600 ring */
+    }
+  </style>
+</head>
+<body class="min-h-screen text-gray-800">
+
+  <nav class="glass-effect flex justify-between items-center px-6 py-4 shadow-lg sticky top-0 z-50">
+    <h1 class="text-3xl font-extrabold gradient-text">Pemesanan Makanan Norin Cafe</h1>
+    <div class="flex items-center space-x-6">
+      <a href="/menu" class="font-medium hover:text-orange-600 transition duration-300 transform hover:scale-110 text-orange-600">Home</a>
+      <a href="/menu" class="font-medium hover:text-orange-600 transition duration-300 transform hover:scale-110">Menu</a>
+      <a href="/aktivitas" class="font-medium hover:text-orange-600 transition duration-300 transform hover:scale-110">Aktivitas</a>
+      <a href="/profil" class="font-medium hover:text-orange-600 transition duration-300 transform hover:scale-110">Profil</a>
+      
+      <form action="/menu/search/find" method="get" class="relative">
+        <input name="keyword" type="text" placeholder="Cari menu..." 
+          class="search-input px-5 py-3 rounded-full border focus:outline-none focus:ring-2 transition-all duration-300 shadow-md w-64" 
+          value="<%= typeof keyword !== 'undefined' ? keyword : '' %>">
+        <button type="submit" class="absolute right-3 top-3 text-orange-500 hover:text-orange-700 transition duration-300 transform hover:scale-110">
+          <i class="fas fa-search text-lg"></i>
+        </button>
+      </form>
+      <button class="bg-orange-500 text-white px-5 py-2 rounded-full hover:bg-orange-600 transition duration-300 shadow-lg hidden">
+        Search
+      </button>
+    </div>
+  </nav>
+
+  <div class="container mx-auto p-8 flex gap-8">
+    
+    <aside class="glass-effect w-1/4 p-6 rounded-3xl shadow-xl border h-fit sticky top-28">
+      <h2 class="font-bold text-xl mb-6 gradient-text">Kategori Menu</h2>
+      <ul class="space-y-3 text-lg">
+        <li><a href="/menu/kategori/makanan" class="block p-3 rounded-xl hover:bg-orange-100 hover:text-orange-600 transition duration-300 transform hover:translate-x-2">
+          <i class="fas fa-utensils mr-3"></i>Makanan <span class="text-sm font-semibold text-gray-500">(<%= typeof makananCount !== 'undefined' ? makananCount : '?' %>)</span>
+        </a></li>
+        <li><a href="/menu/kategori/minuman" class="block p-3 rounded-xl hover:bg-orange-100 hover:text-orange-600 transition duration-300 transform hover:translate-x-2">
+          <i class="fas fa-coffee mr-3"></i>Minuman <span class="text-sm font-semibold text-gray-500">(<%= typeof minumanCount !== 'undefined' ? minumanCount : '?' %>)</span>
+        </a></li>
+        <li><a href="/menu/kategori/cemilan" class="block p-3 rounded-xl hover:bg-orange-100 hover:text-orange-600 transition duration-300 transform hover:translate-x-2">
+          <i class="fas fa-cookie-bite mr-3"></i>Cemilan <span class="text-sm font-semibold text-gray-500">(<%= typeof cemilanCount !== 'undefined' ? cemilanCount : '?' %>)</span>
+        </a></li>
+        <li><a href="/menu" class="block p-3 rounded-xl bg-orange-200 text-orange-700 font-semibold transition duration-300 transform hover:translate-x-2">
+          <i class="fas fa-list-alt mr-3"></i>Semua Menu
+        </a></li>
+      </ul>
+      <button class="mt-8 w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white py-3 rounded-full hover:from-orange-600 hover:to-orange-700 transition duration-300 shadow-lg transform hover:scale-105">
+        <i class="fas fa-shopping-cart mr-2"></i>Keranjang
+      </button>
+    </aside>
+
+    <section class="w-3/4">
+      <h1 class="text-3xl font-extrabold gradient-text mb-6">Menu Tersedia</h1>
+      
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        <% if (menus && menus.length > 0) { %>
+          <% menus.forEach(menu => { %>
+            <div class="glass-effect p-6 rounded-3xl shadow-xl border card-hover">
+              <div class="relative overflow-hidden rounded-2xl mb-4">
+                <img 
+                    src="<%= menu.foto %>" 
+                    alt="<%= menu.nama %>" 
+                    class="img-fluid rounded" 
+                    style="max-width: 300px; height: auto;">
+                <% if (menu.status === 'Best Seller') { %>
+                  <div class="absolute top-3 right-3 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                    <%= menu.status %>
+                  </div>
+                <% } %>
+              </div>
+              <h3 class="text-xl font-bold mb-2"><%= menu.nama %></h3>
+              <% if (menu.deskripsi) { %>
+                <p class="text-sm text-gray-600 mb-2 truncate"><%= menu.deskripsi %></p>
+              <% } %>
+              <p class="text-orange-600 font-bold text-lg mb-4">Rp <%= menu.harga.toLocaleString('id-ID') %></p>
+              
+              <div class="flex space-x-4">
+                <a href="/menu/<%= menu.id_menu %>" class="flex-1 text-center border-2 border-orange-500 text-orange-600 py-3 rounded-full hover:bg-orange-50 transition duration-300 transform hover:scale-105 font-semibold">
+                    Detail
+                </a>
+                <button 
+                  data-menu-id="<%= menu.id_menu %>"
+                  class="flex-1 bg-gradient-to-r from-orange-500 to-orange-600 text-white py-3 rounded-full hover:from-orange-600 hover:to-orange-700 transition duration-300 shadow-md transform hover:scale-105">
+                  <i class="fas fa-plus mr-2"></i>Pesan
+                </button>
+              </div>
+            </div>
+          <% }) %>
+        <% } else { %>
+          <div class="col-span-full glass-effect p-12 rounded-3xl shadow-xl border text-center">
+            <i class="fas fa-box-open text-6xl text-gray-400 mb-4"></i>
+            <p class="text-xl font-semibold text-gray-600">Tidak ada menu tersedia.</p>
+            <p class="text-gray-500 mt-2">Coba cari dengan kata kunci lain atau periksa kategori lainnya.</p>
+          </div>
+        <% } %>
+      </div>
+    </section>
+  </div>
+
+  </body>
+</html>
