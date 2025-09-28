@@ -89,15 +89,15 @@
 
       <!-- Menu Navigasi -->
       <nav class="flex flex-col space-y-3">
-        <a href="/admin" class="menu-item bg-gradient-to-r from-orange-500 to-red-600 text-white font-semibold px-4 py-3 rounded-xl flex items-center space-x-3 shadow-lg">
+        <a href="/admin" id="menu-dashboard" class="menu-item bg-white/10 text-white font-semibold px-4 py-3 rounded-xl flex items-center space-x-3 hover:bg-gradient-to-r hover:from-orange-500 hover:to-red-600">
           <i class="fas fa-chart-pie text-lg"></i>
           <span>Dashboard</span>
         </a>
-        <a href="/admin/kelola-menu" class="menu-item bg-white/10 text-white font-semibold px-4 py-3 rounded-xl flex items-center space-x-3 hover:bg-gradient-to-r hover:from-orange-500 hover:to-red-600">
+        <a href="/admin/kelola-menu" id="menu-kelola" class="menu-item bg-white/10 text-white font-semibold px-4 py-3 rounded-xl flex items-center space-x-3 hover:bg-gradient-to-r hover:from-orange-500 hover:to-red-600">
           <i class="fas fa-utensils text-lg"></i>
           <span>Kelola Menu</span>
         </a>
-        <a href="/pesanan" class="menu-item bg-white/10 text-white font-semibold px-4 py-3 rounded-xl flex items-center space-x-3 hover:bg-gradient-to-r hover:from-orange-500 hover:to-red-600">
+        <a href="/pesanan" id="menu-pesanan" class="menu-item bg-white/10 text-white font-semibold px-4 py-3 rounded-xl flex items-center space-x-3 hover:bg-gradient-to-r hover:from-orange-500 hover:to-red-600">
           <i class="fas fa-shopping-cart text-lg"></i>
           <span>Pesanan</span>
         </a>
@@ -116,9 +116,35 @@
     </div>
   </div>
 </aside>
-    
-    </div>
-  </main>
 
+<script>
+// Fungsi sederhana untuk mengatur menu aktif
+document.addEventListener('DOMContentLoaded', function() {
+    // Reset semua menu ke state default
+    const allMenus = document.querySelectorAll('#menu-dashboard, #menu-kelola, #menu-pesanan');
+    allMenus.forEach(menu => {
+        menu.className = 'menu-item bg-white/10 text-white font-semibold px-4 py-3 rounded-xl flex items-center space-x-3 hover:bg-gradient-to-r hover:from-orange-500 hover:to-red-600';
+    });
+    
+    // Dapatkan path saat ini
+    const currentPath = window.location.pathname;
+    let activeMenu = null;
+    
+    // Tentukan menu aktif berdasarkan URL
+    if (currentPath === '/admin' || currentPath === '/admin/') {
+        activeMenu = document.getElementById('menu-dashboard');
+    } else if (currentPath.includes('/admin/kelola-menu')) {
+        activeMenu = document.getElementById('menu-kelola');
+    } else if (currentPath.includes('/pesanan')) {
+        activeMenu = document.getElementById('menu-pesanan');
+    }
+    
+    // Terapkan style aktif
+    if (activeMenu) {
+        activeMenu.className = 'menu-item bg-gradient-to-r from-orange-500 to-red-600 text-white font-semibold px-4 py-3 rounded-xl flex items-center space-x-3 shadow-lg';
+    }
+});
+</script>
+    
 </body>
 </html>
