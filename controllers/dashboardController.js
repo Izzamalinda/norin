@@ -3,6 +3,10 @@ const { QueryTypes } = require("sequelize");
 const { sequelize, Menu, Pesanan, Keranjang, User } = require("../models");
 const moment = require("moment");
 
+function renderDashboard(req, res) {
+  res.render("dashboardAdmin", { title: "Dashboard" });
+}
+
 // === Summary (Card Atas Dashboard) ===
 async function getSummary(req, res) {
   try {
@@ -26,7 +30,7 @@ async function getSummary(req, res) {
     // Menu aktif
     let menuAktif = 0;
     try {
-      menuAktif = await Menu.count({ where: { status_menu: "aktif" } });
+      menuAktif = await Menu.count({ where: { status_menu: "available" } });
     } catch {
       menuAktif = await Menu.count();
     }
@@ -181,6 +185,7 @@ async function createMenuQuick(req, res) {
 }
 
 module.exports = {
+  renderDashboard,
   getSummary,
   getSalesAnalytics,
   getTopCategories,

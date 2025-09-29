@@ -1,15 +1,88 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
-  <title><%= menu.nama %></title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Detail Menu: <%= menu.nama %></title> 
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    body {
+      /* Warna latar belakang sesuai estetika kode frontend (putih-krem gradien) */
+      background: linear-gradient(135deg, #fef7f0 0%, #fff8f2 100%); 
+    }
+    .glass-effect {
+      /* Efek kaca pada background card/container */
+      backdrop-filter: blur(10px);
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+    .gradient-text {
+      /* Warna gradien oranye untuk judul/teks utama */
+      background: linear-gradient(45deg, #ea580c, #fb923c); /* orange-600 ke orange-400 */
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+  </style>
 </head>
-<body>
-  <h1><%= menu.nama %></h1>
-  <p><strong>Harga:</strong> Rp <%= menu.harga %></p>
-  <p><strong>Deskripsi:</strong> <%= menu.deskripsi %></p>
-  <p><strong>Status:</strong> <%= menu.status_menu %></p>
-  <p><strong>Kategori:</strong> <%= menu.kategori || '-' %></p>
+<body class="min-h-screen text-gray-800 flex justify-center items-start pt-16">
 
-  <a href="/menu">⬅ Kembali ke daftar menu</a>
+  <div class="container mx-auto max-w-4xl p-8">
+    
+    <a href="/menu" class="text-orange-600 hover:text-orange-800 font-semibold mb-6 inline-flex items-center transition duration-300">
+        <i class="fas fa-arrow-left mr-2"></i> Kembali ke daftar menu
+    </a>
+
+    <div class="glass-effect p-8 rounded-3xl shadow-2xl border flex flex-col md:flex-row gap-8 mt-4">
+
+      <div class="md:w-1/2">
+        <div class="relative overflow-hidden rounded-2xl shadow-lg">
+          <img src="<%= menu.foto %>" 
+               alt="<%= menu.nama %>" class="w-full h-80 object-cover">
+          
+          <% if (menu.status_menu && menu.status_menu !== 'Tersedia') { %>
+            <div class="absolute top-3 right-3 bg-red-500 text-white px-4 py-1 rounded-full text-sm font-semibold shadow-md">
+              <%= menu.status_menu %>
+            </div>
+          <% } %>
+        </div>
+      </div>
+
+      <div class="md:w-1/2 flex flex-col justify-between">
+        <div>
+          <h1 class="text-4xl font-extrabold mb-4 gradient-text"><%= menu.nama %></h1>
+          
+          <p class="text-3xl text-orange-600 font-bold mb-6">
+            Rp <%= menu.harga.toLocaleString('id-ID') %>
+          </p>
+          
+          <h2 class="text-xl font-bold mb-2">Deskripsi</h2>
+          <p class="text-gray-700 mb-6 leading-relaxed">
+            <%= menu.deskripsi || 'Tidak ada deskripsi yang tersedia untuk menu ini.' %>
+          </p>
+
+          <div class="space-y-3">
+            <div class="flex items-center">
+              <i class="fas fa-tag text-orange-500 w-6"></i>
+              <p class="font-medium text-gray-700">Kategori: <span class="text-gray-900 font-semibold"><%= menu.kategori || '-' %></span></p>
+            </div>
+            <div class="flex items-center">
+              <i class="fas fa-check-circle text-green-500 w-6"></i>
+              <p class="font-medium text-gray-700">Status Stok: <span class="font-semibold <%= menu.status_menu === 'Tersedia' ? 'text-green-600' : 'text-red-600' %>"><%= menu.status_menu || 'Tidak Diketahui' %></span></p>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-8">
+          <button 
+            class="w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white py-3 rounded-full hover:from-orange-600 hover:to-orange-700 transition duration-300 shadow-lg transform hover:scale-[1.01]">
+            <i class="fas fa-shopping-cart mr-2"></i> Tambah ke Keranjang
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </body>
 </html>

@@ -48,10 +48,7 @@
   <nav class="glass-effect flex justify-between items-center px-6 py-4 shadow-lg sticky top-0 z-50">
     <h1 class="text-3xl font-extrabold gradient-text">Pemesanan Makanan Norin Cafe</h1>
     <div class="flex items-center space-x-6">
-      <a href="/menu" class="font-medium hover:text-orange-600 transition duration-300 transform hover:scale-110 text-orange-600">Home</a>
       <a href="/menu" class="font-medium hover:text-orange-600 transition duration-300 transform hover:scale-110">Menu</a>
-      <a href="/aktivitas" class="font-medium hover:text-orange-600 transition duration-300 transform hover:scale-110">Aktivitas</a>
-      <a href="/profil" class="font-medium hover:text-orange-600 transition duration-300 transform hover:scale-110">Profil</a>
       
       <form action="/menu/search/find" method="get" class="relative">
         <input name="keyword" type="text" placeholder="Cari menu..." 
@@ -99,10 +96,9 @@
             <div class="glass-effect p-6 rounded-3xl shadow-xl border card-hover">
               <div class="relative overflow-hidden rounded-2xl mb-4">
                 <img 
-                    src="<%= menu.foto %>" 
-                    alt="<%= menu.nama %>" 
-                    class="img-fluid rounded" 
-                    style="max-width: 300px; height: auto;">
+                      src="<%= menu.foto %>" 
+                      alt="<%= menu.nama %>" 
+                      class="w-full h-52 object-cover transition duration-500 hover:scale-110">
                 <% if (menu.status === 'Best Seller') { %>
                   <div class="absolute top-3 right-3 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
                     <%= menu.status %>

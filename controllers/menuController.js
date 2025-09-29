@@ -18,7 +18,7 @@ module.exports = {
   // CREATE menu baru
   async create(req, res) {
     try {
-      const { nama, harga, deskripsi, status_menu } = req.body;
+      const { nama, harga, deskripsi, status_menu, kategori } = req.body;
       let foto = null;
 
       if (req.file) {
@@ -31,6 +31,7 @@ module.exports = {
         deskripsi,
         status_menu,
         foto,
+        kategori,
       });
 
       res.redirect("/admin/kelola-menu");
@@ -44,7 +45,7 @@ module.exports = {
   async update(req, res) {
     try {
       const { id } = req.params;
-      const { nama, harga, deskripsi, status_menu } = req.body;
+      const { nama, harga, deskripsi, status_menu, kategori } = req.body;
 
       const menu = await Menu.findByPk(id);
       if (!menu) return res.status(404).send("Menu tidak ditemukan");
@@ -58,7 +59,7 @@ module.exports = {
         foto = "/uploads/menu/" + req.file.filename;
       }
 
-      await menu.update({ nama, harga, deskripsi, status_menu, foto });
+      await menu.update({ nama, harga, deskripsi, status_menu,kategori, foto });
       res.redirect("/admin/kelola-menu");
     } catch (err) {
       console.error(err);
