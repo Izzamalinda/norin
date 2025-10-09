@@ -48,7 +48,6 @@
   <nav class="glass-effect flex justify-between items-center px-6 py-4 shadow-lg sticky top-0 z-50">
     <h1 class="text-3xl font-extrabold gradient-text">Pemesanan Makanan Norin Cafe</h1>
     <div class="flex items-center space-x-6">
-      <a href="/menu" class="font-medium hover:text-orange-600 transition duration-300 transform hover:scale-110">Menu</a>
       
       <form action="/menu/search/find" method="get" class="relative">
         <input name="keyword" type="text" placeholder="Cari menu..." 
@@ -78,13 +77,11 @@
         <li><a href="/menu/kategori/cemilan" class="block p-3 rounded-xl hover:bg-orange-100 hover:text-orange-600 transition duration-300 transform hover:translate-x-2">
           <i class="fas fa-cookie-bite mr-3"></i>Cemilan <span class="text-sm font-semibold text-gray-500">(<%= typeof cemilanCount !== 'undefined' ? cemilanCount : '?' %>)</span>
         </a></li>
-        <li><a href="/menu" class="block p-3 rounded-xl bg-orange-200 text-orange-700 font-semibold transition duration-300 transform hover:translate-x-2">
-          <i class="fas fa-list-alt mr-3"></i>Semua Menu
-        </a></li>
       </ul>
-      <button class="mt-8 w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white py-3 rounded-full hover:from-orange-600 hover:to-orange-700 transition duration-300 shadow-lg transform hover:scale-105">
+      <a href="/keranjang/view" 
+        class="mt-8 w-full block bg-gradient-to-r from-orange-500 to-orange-600 text-white py-3 rounded-full text-center hover:from-orange-600 hover:to-orange-700 transition duration-300 shadow-lg transform hover:scale-105">
         <i class="fas fa-shopping-cart mr-2"></i>Keranjang
-      </button>
+      </a>
     </aside>
 
     <section class="w-3/4">
@@ -133,6 +130,57 @@
       </div>
     </section>
   </div>
+  <script>
+  document.querySelectorAll("button[data-menu-id]").forEach(btn => {
+    const id_menu = btn.dataset.menuId;
+    const jumlah = localStorage.getItem(`keranjang-${id_menu}`);
+
+    // Jika item sudah ada di keranjang, tampilkan +/−
+    if (jumlah) {
+      btn.innerHTML = buatTombolTambahKurang(id_menu, jumlah);
+    }
+
+    // Event klik tombol "Pesan"
+    btn.addEventListener("click", async () => {
+      const res = await fetch("/keranjang/add", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id_menu })
+      });
+      if (res.ok) {
+        localStorage.setItem(`keranjang-${id_menu}`, 1);
+        btn.innerHTML = buatTombolTambahKurang(id_menu, 1);
+      }
+    });
+  });
+
+  function buatTombolTambahKurang(id_menu, jumlah) {
+    return `
+      <div class="flex justify-between items-center w-full">
+        <button class="bg-orange-500 px-3 rounded-full text-white" onclick="ubahJumlah('${id_menu}', 'kurang')">−</button>
+        <span id="jumlah-${id_menu}" class="px-2 font-semibold">${jumlah}</span>
+        <button class="bg-orange-500 px-3 rounded-full text-white" onclick="ubahJumlah('${id_menu}', 'tambah')">+</button>
+      </div>`;
+  }
+
+  async function ubahJumlah(id_menu, action) {
+    const res = await fetch("/keranjang/update", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id_menu, action })
+    });
+    const data = await res.json();
+    if (data.jumlah !== undefined) {
+      document.querySelector(`#jumlah-${id_menu}`).textContent = data.jumlah;
+      localStorage.setItem(`keranjang-${id_menu}`, data.jumlah);
+    } else {
+      localStorage.removeItem(`keranjang-${id_menu}`);
+      location.reload();
+    }
+  }
+  </script>
+
+
 
   </body>
 </html>

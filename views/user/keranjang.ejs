@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Keranjang Belanja - Norin Cafe</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-white min-h-screen text-gray-800">
+
+  <nav class="bg-white flex justify-between items-center px-6 py-4 shadow-md sticky top-0 z-50">
+    <h1 class="text-2xl font-bold text-orange-600">Norin Cafe</h1>
+    <a href="/menu" class="hover:text-orange-600 font-medium">Kembali ke Menu</a>
+  </nav>
+
+  <div class="container mx-auto p-6 flex gap-6">
+    
+    <!-- Daftar Keranjang -->
+    <section class="w-2/3">
+      <h2 class="text-2xl font-bold mb-6">Keranjang Belanja</h2>
+
+      <% if (keranjang.length > 0) { %>
+        <% keranjang.forEach(item => { %>
+          <div class="flex items-center justify-between bg-white border rounded-xl shadow-sm p-4 mb-4">
+            <div class="flex items-center space-x-4">
+              <img src="<%= item.Menu?.foto %>" 
+                   alt="<%= item.Menu?.nama %>" 
+                   class="w-20 h-20 rounded-lg object-cover">
+              <div>
+                <h3 class="font-semibold text-lg"><%= item.Menu?.nama %></h3>
+                <p class="text-orange-600 font-bold">Rp <%= item.Menu?.harga.toLocaleString('id-ID') %></p>
+              </div>
+            </div>
+            <div class="flex items-center space-x-3">
+              <button class="bg-orange-500 text-white px-3 py-1 rounded-full" onclick="ubahJumlah('<%= item.id_menu %>', 'kurang')">−</button>
+              <span id="jumlah-<%= item.id_menu %>" class="px-2 font-semibold"><%= item.jumlah %></span>
+              <button class="bg-orange-500 text-white px-3 py-1 rounded-full" onclick="ubahJumlah('<%= item.id_menu %>', 'tambah')">+</button>
+              <button class="text-red-500 hover:text-red-700" onclick="hapusItem('<%= item.id_menu %>')">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </div>
+        <% }) %>
+      <% } else { %>
+        <div class="bg-gray-50 border rounded-xl p-10 text-center">
+          <i class="fas fa-box-open text-5xl text-gray-400 mb-3"></i>
+          <p class="text-gray-600 font-medium">Keranjang kosong. Yuk pesan makanan dulu!</p>
+          <a href="/menu" class="mt-4 inline-block bg-orange-500 text-white px-6 py-2 rounded-full hover:bg-orange-600 transition">Lihat Menu</a>
+        </div>
+      <% } %>
+    </section>
+
+    <!-- Ringkasan -->
+    <aside class="w-1/3 bg-white border rounded-xl shadow-md p-6 h-fit">
+      <h3 class="text-lg font-bold mb-4">Ringkasan Pesanan</h3>
+      <div class="flex justify-between font-medium text-sm mb-2">
+        <span><%= keranjang.length %> item</span>
+        <span>Rp <%= totalHarga.toLocaleString('id-ID') %></span>
+      </div>
+      <div class="flex justify-between font-bold text-lg mb-2">
+        <span>TOTAL</span>
+        <span class="text-orange-600">Rp <%= totalHarga.toLocaleString('id-ID') %></span>
+      </div>
+      <button id="btnCheckout" 
+        class="w-full bg-orange-500 text-white py-3 rounded-lg font-semibold hover:bg-orange-600 transition">
+        CHECK OUT
+      </button>
+      <div id="checkoutModal" class="fixed inset-0 hidden bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-2xl p-8 shadow-2xl w-96 text-center">
+          <h2 class="text-xl font-bold text-gray-800 mb-4">Konfirmasi Checkout</h2>
+          <p class="text-gray-600 mb-6">Apakah kamu yakin ingin melanjutkan pemesanan ini?</p>
+            <div class="flex justify-center gap-4">
+              <button id="cancelCheckout" class="px-6 py-2 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-100 transition">Batal</button>
+              <button id="confirmCheckout" class="px-6 py-2 rounded-lg bg-orange-500 text-white hover:bg-orange-600 transition">Ya, Lanjutkan</button>
+            </div>
+        </div>
+      </div>
+
+    </aside>
+  </div>
+
+  <script>
+    async function ubahJumlah(id_menu, action) {
+      const res = await fetch("/keranjang/update", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id_menu, action })
+      });
+      const data = await res.json();
+      if (data.jumlah !== undefined) {
+        document.querySelector(`#jumlah-${id_menu}`).textContent = data.jumlah;
+      } else {
+        location.reload();
+      }
+    }
+
+    async function hapusItem(id_menu) {
+      if (confirm("Hapus item ini dari keranjang?")) {
+        await fetch(`/keranjang/${id_menu}`, { method: "DELETE" });
+        location.reload();
+      }
+    }
+
+    const modal = document.getElementById("checkoutModal");
+    const btnCheckout = document.getElementById("btnCheckout");
+    const btnCancel = document.getElementById("cancelCheckout");
+    const btnConfirm = document.getElementById("confirmCheckout");
+
+    // Buka modal
+    btnCheckout.addEventListener("click", () => {
+      modal.classList.remove("hidden");
+    });
+
+    // Tutup modal
+    btnCancel.addEventListener("click", () => {
+      modal.classList.add("hidden");
+    });
+
+    // Konfirmasi checkout
+    btnConfirm.addEventListener("click", async () => {
+      modal.classList.add("hidden");
+
+      const res = await fetch("/keranjang/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({})
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        // tampilkan notifikasi berhasil
+        alert("✅ Pesanan berhasil dibuat!");
+        // bersihkan localStorage
+        Object.keys(localStorage)
+          .filter(k => k.startsWith("keranjang-"))
+          .forEach(k => localStorage.removeItem(k));
+        window.location.href = "/menu";
+      } else {
+        alert("❌ " + (data.message || "Terjadi kesalahan"));
+      }
+    });
+
+  </script>
+</body>
+</html>

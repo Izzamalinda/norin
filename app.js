@@ -10,6 +10,9 @@ const { sequelize } = require("./models"); // pakai models/index.js
 const authRoutes = require("./routes/auth");
 const adminRoutes = require("./routes/admin");
 const userRoutes = require("./routes/user");
+const keranjangRoutes = require("./routes/keranjang");
+const keranjangViewRoutes = require("./routes/keranjangView");
+
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -42,6 +45,8 @@ app.get("/", (req, res) => {
 app.use("/", authRoutes);
 app.use("/admin", adminRoutes);
 app.use("/", userRoutes);
+app.use("/keranjang", keranjangRoutes);
+app.use("/keranjang/view", keranjangViewRoutes);
 
 // ========== DB Sync & Server ==========
 sequelize

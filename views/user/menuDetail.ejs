@@ -76,13 +76,56 @@
 
         <div class="mt-8">
           <button 
-            class="w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white py-3 rounded-full hover:from-orange-600 hover:to-orange-700 transition duration-300 shadow-lg transform hover:scale-[1.01]">
-            <i class="fas fa-shopping-cart mr-2"></i> Tambah ke Keranjang
+              id="btnTambahKeranjang"
+              data-menu-id="<%= menu.id_menu %>"
+              class="w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white py-3 rounded-full hover:from-orange-600 hover:to-orange-700 transition duration-300 shadow-lg transform hover:scale-[1.01]">
+              <i class="fas fa-shopping-cart mr-2"></i> Tambah ke Keranjang
           </button>
         </div>
       </div>
     </div>
   </div>
+
+  <script>
+    const btn = document.getElementById("btnTambahKeranjang");
+    const id_menu = btn.dataset.menuId;
+
+    btn.addEventListener("click", async () => {
+      const res = await fetch("/keranjang/add", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id_menu })
+      });
+      if (res.ok) {
+        // Simpan status ke localStorage agar sinkron dengan menuUser
+        localStorage.setItem(`keranjang-${id_menu}`, 1);
+
+        // Ubah tombol jadi tambah/kurang
+        btn.innerHTML = `
+          <div class="flex justify-between items-center w-full">
+            <button class="bg-orange-500 px-3 rounded-full text-white" onclick="ubahJumlah('${id_menu}', 'kurang')">−</button>
+            <span id="jumlah-${id_menu}" class="px-2 font-semibold">1</span>
+            <button class="bg-orange-500 px-3 rounded-full text-white" onclick="ubahJumlah('${id_menu}', 'tambah')">+</button>
+          </div>`;
+      }
+    });
+
+    async function ubahJumlah(id_menu, action) {
+      const res = await fetch("/keranjang/update", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id_menu, action })
+      });
+      const data = await res.json();
+      if (data.jumlah !== undefined) {
+        document.querySelector(`#jumlah-${id_menu}`).textContent = data.jumlah;
+        localStorage.setItem(`keranjang-${id_menu}`, data.jumlah);
+      } else {
+        localStorage.removeItem(`keranjang-${id_menu}`);
+        location.reload();
+      }
+    }
+  </script>
 
 </body>
 </html>
