@@ -85,6 +85,11 @@
     </aside>
 
     <section class="w-3/4">
+      <% if (no_meja) { %>
+  <div class="bg-green-100 text-green-800 p-3 rounded-md text-center mb-4 shadow">
+    🍽️ Anda sedang memesan dari <b>Meja <%= no_meja %></b>
+  </div>
+<% } %>
       <h1 class="text-3xl font-extrabold gradient-text mb-6">Menu Tersedia</h1>
       
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">

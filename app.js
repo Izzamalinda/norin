@@ -12,6 +12,7 @@ const adminRoutes = require("./routes/admin");
 const userRoutes = require("./routes/user");
 const keranjangRoutes = require("./routes/keranjang");
 const keranjangViewRoutes = require("./routes/keranjangView");
+const mejaRoutes = require('./routes/meja');
 
 
 const app = express();
@@ -47,6 +48,7 @@ app.use("/admin", adminRoutes);
 app.use("/", userRoutes);
 app.use("/keranjang", keranjangRoutes);
 app.use("/keranjang/view", keranjangViewRoutes);
+app.use('/meja', mejaRoutes);
 
 // ========== DB Sync & Server ==========
 sequelize

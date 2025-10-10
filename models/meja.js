@@ -11,17 +11,18 @@ module.exports = (sequelize, DataTypes) => {
 
   Meja.init({
     id_meja: {
-      type: DataTypes.STRING(50),
+      type: DataTypes.INTEGER,
+      autoIncrement: true,     // ✅ biar otomatis nambah
       primaryKey: true
     },
     no_meja: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      unique: true
+      type: DataTypes.STRING,
+      allowNull: false
     },
     qr_code: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: false,
+      unique: true
     }
   }, {
     sequelize,

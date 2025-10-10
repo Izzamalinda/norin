@@ -101,6 +101,12 @@
           <i class="fas fa-shopping-cart text-lg"></i>
           <span>Pesanan</span>
         </a>
+        <a href="/meja/list" id="menu-meja" 
+   class="menu-item bg-white/10 text-white font-semibold px-4 py-3 rounded-xl flex items-center space-x-3 hover:bg-gradient-to-r hover:from-orange-500 hover:to-red-600">
+  <i class="fas fa-qrcode text-lg"></i>
+  <span>Daftar Meja</span>
+</a>
+
 
         <!-- Logout -->
         <a href="/logout" class="menu-item bg-gradient-to-r from-red-600 to-red-700 text-white font-semibold px-4 py-3 rounded-xl flex items-center space-x-3 mt-8 shadow-lg hover:from-red-700 hover:to-red-800">
@@ -121,7 +127,7 @@
 // Fungsi sederhana untuk mengatur menu aktif
 document.addEventListener('DOMContentLoaded', function() {
     // Reset semua menu ke state default
-    const allMenus = document.querySelectorAll('#menu-dashboard, #menu-kelola, #menu-pesanan');
+    const allMenus = document.querySelectorAll('#menu-dashboard, #menu-kelola, #menu-pesanan, #menu-meja');
     allMenus.forEach(menu => {
         menu.className = 'menu-item bg-white/10 text-white font-semibold px-4 py-3 rounded-xl flex items-center space-x-3 hover:bg-gradient-to-r hover:from-orange-500 hover:to-red-600';
     });
