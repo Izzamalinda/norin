@@ -75,57 +75,161 @@
         </div>
 
         <div class="mt-8">
-          <button 
-              id="btnTambahKeranjang"
-              data-menu-id="<%= menu.id_menu %>"
-              class="w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white py-3 rounded-full hover:from-orange-600 hover:to-orange-700 transition duration-300 shadow-lg transform hover:scale-[1.01]">
+          <div data-menu-id="<%= menu.id_menu %>" class="w-full">
+            <button class="btn-pesan w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white py-3 rounded-full">
               <i class="fas fa-shopping-cart mr-2"></i> Tambah ke Keranjang
-          </button>
+            </button>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
   <script>
-    const btn = document.getElementById("btnTambahKeranjang");
-    const id_menu = btn.dataset.menuId;
+/* =====================================
+   🔸 Helper: Format Rupiah
+===================================== */
+function formatCurrency(n) {
+  return 'Rp ' + Number(n).toLocaleString('id-ID');
+}
 
-    btn.addEventListener("click", async () => {
-      const res = await fetch("/keranjang/add", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id_menu })
-      });
-      if (res.ok) {
-        // Simpan status ke localStorage agar sinkron dengan menuUser
-        localStorage.setItem(`keranjang-${id_menu}`, 1);
+/* =====================================
+   🔸 Helper: Buat Kontrol + / −
+===================================== */
+function createQtyControls(id_menu, jumlah) {
+  const wrapper = document.createElement('div');
+  wrapper.className = 'flex justify-between items-center w-full';
+  wrapper.innerHTML = `
+    <button class="btn-kurang bg-orange-500 px-3 rounded-full text-white">−</button>
+    <span id="jumlah-${id_menu}" class="px-2 font-semibold">${jumlah}</span>
+    <button class="btn-tambah bg-orange-500 px-3 rounded-full text-white">+</button>
+  `;
 
-        // Ubah tombol jadi tambah/kurang
-        btn.innerHTML = `
-          <div class="flex justify-between items-center w-full">
-            <button class="bg-orange-500 px-3 rounded-full text-white" onclick="ubahJumlah('${id_menu}', 'kurang')">−</button>
-            <span id="jumlah-${id_menu}" class="px-2 font-semibold">1</span>
-            <button class="bg-orange-500 px-3 rounded-full text-white" onclick="ubahJumlah('${id_menu}', 'tambah')">+</button>
-          </div>`;
-      }
+  // Tombol Kurang
+  wrapper.querySelector('.btn-kurang').addEventListener('click', async (e) => {
+    e.stopPropagation();
+    await changeQty(id_menu, 'kurang', wrapper);
+  });
+
+  // Tombol Tambah
+  wrapper.querySelector('.btn-tambah').addEventListener('click', async (e) => {
+    e.stopPropagation();
+    await changeQty(id_menu, 'tambah', wrapper);
+  });
+
+  return wrapper;
+}
+
+/* =====================================
+   🔸 Ganti ke Kontrol + / −
+===================================== */
+async function replaceWithControls(container, id_menu, jumlah) {
+  container.innerHTML = '';
+  const controls = createQtyControls(id_menu, jumlah);
+  container.appendChild(controls);
+  localStorage.setItem(`keranjang-${id_menu}`, jumlah);
+  localStorage.setItem('keranjang-last-update', Date.now());
+}
+
+/* =====================================
+   🔸 Ganti ke Tombol Pesan
+===================================== */
+function replaceWithPesanButton(container, id_menu) {
+  container.innerHTML = `
+    <button class="btn-pesan w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white py-3 rounded-full shadow-md flex items-center justify-center">
+      <i class="fas fa-shopping-cart mr-2"></i> Tambah ke Keranjang
+    </button>`;
+  attachPesanListener(container);
+}
+
+/* =====================================
+   🔸 Listener Tombol Pesan
+===================================== */
+function attachPesanListener(container) {
+  const id_menu = container.dataset.menuId;
+  const btn = container.querySelector('.btn-pesan');
+  if (!btn) return;
+
+  btn.addEventListener('click', async (e) => {
+    e.stopPropagation();
+    btn.disabled = true;
+    const res = await fetch('/keranjang/add', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id_menu })
     });
+    const data = await res.json();
+    btn.disabled = false;
 
-    async function ubahJumlah(id_menu, action) {
-      const res = await fetch("/keranjang/update", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id_menu, action })
-      });
-      const data = await res.json();
-      if (data.jumlah !== undefined) {
-        document.querySelector(`#jumlah-${id_menu}`).textContent = data.jumlah;
-        localStorage.setItem(`keranjang-${id_menu}`, data.jumlah);
-      } else {
-        localStorage.removeItem(`keranjang-${id_menu}`);
-        location.reload();
-      }
+    if (res.ok && data.jumlah !== undefined) {
+      replaceWithControls(container, id_menu, data.jumlah);
+    } else {
+      replaceWithControls(container, id_menu, 1);
     }
-  </script>
+  });
+}
+
+/* =====================================
+   🔸 Update Jumlah (+ / −)
+===================================== */
+async function changeQty(id_menu, action, wrapperDom) {
+  const res = await fetch('/keranjang/update', {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id_menu, action })
+  });
+
+  const data = await res.json();
+
+  if (res.ok) {
+    if (data.removed) {
+      // Jika jumlah 0, hapus dari localStorage dan ubah jadi tombol pesan
+      localStorage.removeItem(`keranjang-${id_menu}`);
+      replaceWithPesanButton(wrapperDom.parentElement, id_menu);
+    } else if (data.jumlah !== undefined) {
+      // Update jumlah di UI dan localStorage
+      const span = wrapperDom.querySelector(`#jumlah-${id_menu}`);
+      if (span) span.textContent = data.jumlah;
+      localStorage.setItem(`keranjang-${id_menu}`, data.jumlah);
+    }
+    localStorage.setItem('keranjang-last-update', Date.now());
+  } else {
+    alert(data.message || 'Gagal mengubah jumlah');
+  }
+}
+
+/* =====================================
+   🔸 Inisialisasi Saat Page Load
+===================================== */
+const container = document.querySelector('[data-menu-id]');
+const id_menu = container.dataset.menuId;
+
+// Jika sudah ada di keranjang sebelumnya
+const savedQty = localStorage.getItem(`keranjang-${id_menu}`);
+if (savedQty) {
+  container.innerHTML = '';
+  container.appendChild(createQtyControls(id_menu, savedQty));
+} else {
+  attachPesanListener(container);
+}
+
+/* =====================================
+   🔸 Sinkron Antar-Tab (menuUser ↔ menuDetail ↔ keranjang)
+===================================== */
+window.addEventListener('storage', (e) => {
+  if (!e.key) return;
+  if (e.key.startsWith('keranjang-')) {
+    const id = e.key.split('-')[1];
+    if (id !== id_menu) return;
+    if (e.newValue) {
+      container.innerHTML = '';
+      container.appendChild(createQtyControls(id_menu, e.newValue));
+    } else {
+      replaceWithPesanButton(container, id_menu);
+    }
+  }
+});
+</script>
 
 </body>
 </html>

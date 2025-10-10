@@ -40,7 +40,7 @@ router.post('/generate', async (req, res) => {
       });
     }
 
-    const menuUrl = `http://192.168.11.101:3000/menu?meja=${no_meja}`;
+    const menuUrl = `http://192.168.100.73:3000/menu?meja=${no_meja}`;
     const qrFile = `meja-${no_meja}.png`;
     const qrPath = path.join(qrDir, qrFile);
     const qrRelativePath = `/uploads/qrcode/${qrFile}`;
@@ -74,7 +74,10 @@ router.post('/generate', async (req, res) => {
     await new Promise(resolve => out.on('finish', resolve));
 
     // Simpan ke database
-    await Meja.create({ no_meja, qr_code: qrRelativePath });
+    // buat id_meja konsisten, misal M001, M002, ...
+    const id_meja = "M" + String(no_meja).padStart(3, "0");
+    await Meja.create({ id_meja, no_meja, qr_code: qrRelativePath });
+
 
     // Redirect ke daftar meja
     res.redirect('/meja/list');
