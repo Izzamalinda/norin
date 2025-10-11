@@ -41,5 +41,8 @@ router.get("/api/dashboard/sales", checkAuth, dashboardController.getSalesAnalyt
 router.get("/api/dashboard/top-categories", checkAuth, dashboardController.getTopCategories);
 router.get("/api/dashboard/recent-activities", checkAuth, dashboardController.getRecentActivities);
 router.post("/api/dashboard/actions/menu", checkAuth, dashboardController.createMenuQuick);
+router.get('/penjualan', dashboardController.renderPenjualan);
+router.get('/api/dashboard/penjualan', dashboardController.getLaporanPenjualan);
+
 
 module.exports = router;

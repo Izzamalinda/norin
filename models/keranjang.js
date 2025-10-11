@@ -27,6 +27,10 @@ module.exports = (sequelize, DataTypes) => {
     catatan: {
       type: DataTypes.STRING,
       allowNull: true
+    },
+    id_meja: {
+      type: DataTypes.STRING(36),
+      allowNull: true, // ini penting biar bisa null dulu
     }
   }, {
     sequelize,

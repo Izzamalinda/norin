@@ -43,6 +43,15 @@
     }
   </style>
 </head>
+<script>
+  // Simpan id_meja ke localStorage (supaya halaman lain tahu)
+  const idMejaFromServer = "<%= id_meja || '' %>";
+  if (idMejaFromServer) {
+    localStorage.setItem("id_meja", idMejaFromServer);
+    console.log("✅ id_meja disimpan ke localStorage:", idMejaFromServer);
+  }
+</script>
+
 <body class="min-h-screen text-gray-800">
 
   <nav class="glass-effect flex justify-between items-center px-6 py-4 shadow-lg sticky top-0 z-50">
@@ -85,11 +94,12 @@
     </aside>
 
     <section class="w-3/4">
-      <% if (no_meja) { %>
+      <% if (id_meja) { %>
   <div class="bg-green-100 text-green-800 p-3 rounded-md text-center mb-4 shadow">
-    🍽️ Anda sedang memesan dari <b>Meja <%= no_meja %></b>
+    🍽️ Anda sedang memesan dari <b>Meja <%= id_meja %></b>
   </div>
 <% } %>
+
       <h1 class="text-3xl font-extrabold gradient-text mb-6">Menu Tersedia</h1>
       
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -186,17 +196,26 @@ function attachPesanListener(container) {
   const id_menu = container.dataset.menuId;
   const btn = container.querySelector('.btn-pesan');
   if (!btn) return;
-  // jika listener sudah ada, hindari ganda (opsional)
+
   btn.addEventListener('click', async (e) => {
     e.stopPropagation();
     btn.disabled = true;
-    const res = await fetch('/keranjang/add', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ id_menu })
-    });
+
+    const id_meja = localStorage.getItem("id_meja"); // 🟢 ambil id_meja yang disimpan dari server
+if (!id_meja) {
+  alert("id_meja belum tersimpan. Pastikan Anda membuka dari QR meja!");
+  return;
+}
+
+const res = await fetch('/keranjang/add', {
+  method: 'POST',
+  headers: {'Content-Type':'application/json'},
+  body: JSON.stringify({ id_menu, id_meja }) // kirim keduanya
+});
+
     const data = await res.json();
     btn.disabled = false;
+
     if (res.ok) {
       const jumlah = data.jumlah ?? 1;
       await replaceWithControls(container, id_menu, jumlah);
@@ -205,6 +224,7 @@ function attachPesanListener(container) {
     }
   });
 }
+
 
 /* dipanggil saat user menekan +/- pada menuUser */
 async function changeQtyFromContainer(id_menu, action, wrapperDom) {
