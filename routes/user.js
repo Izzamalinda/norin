@@ -5,22 +5,15 @@ const menuUserController = require("../controllers/menuUserController");
 // ✅ Halaman utama menu (mendukung ?meja=5)
 router.get("/menu", async (req, res) => {
   try {
-    const id_meja = req.query.meja || null;
+    const no_meja = req.query.meja || null;
 
-    // simpan ke session biar backend tahu meja ini
-    if (id_meja) {
-      req.session.id_meja = id_meja;
-      console.log("🪑 ID Meja disimpan di session:", id_meja);
-    }
-
-    // ambil semua data menu dari controller
+    // ambil semua data menu (kita buat method tambahan di controller)
     const allMenu = await menuUserController.getAllMenuData();
 
-    // kirim ke EJS
     res.render("user/menuUser", { 
       title: "Menu Restoran", 
       menus: allMenu,
-      id_meja: id_meja || req.session.id_meja || null
+      no_meja // kirim ke EJS agar bisa tampil di halaman
     });
   } catch (err) {
     console.error(err);

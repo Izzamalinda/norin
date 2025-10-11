@@ -166,41 +166,29 @@
   btnCheckout.addEventListener("click", () => modal.classList.remove("hidden"));
   btnCancel.addEventListener("click", () => modal.classList.add("hidden"));
 
-btnConfirm.addEventListener("click", async () => {
-  modal.classList.add("hidden");
+  btnConfirm.addEventListener("click", async () => {
+    modal.classList.add("hidden");
 
-  // 🔹 Coba ambil id_meja dari localStorage dulu
-  let id_meja = localStorage.getItem("id_meja");
+    const res = await fetch("/keranjang/checkout", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({})
+    });
 
-  // 🔹 Kalau belum ada, ambil dari URL QR Code
-  if (!id_meja) {
-    const urlParams = new URLSearchParams(window.location.search);
-    id_meja = urlParams.get("meja");
+    const data = await res.json();
+    if (res.ok) {
+      alert("✅ Pesanan berhasil dibuat!");
+      // Hapus semua item keranjang di localStorage
+      Object.keys(localStorage)
+        .filter(k => k.startsWith("keranjang-"))
+        .forEach(k => localStorage.removeItem(k));
 
-    // Simpan ke localStorage biar nggak hilang di halaman lain
-    if (id_meja) localStorage.setItem("id_meja", id_meja);
-  }
-
-  console.log("📱 ID MEJA TERKIRIM:", id_meja);
-
-  // 🔹 Kirim id_meja ke backend saat checkout
-  const res = await fetch("/keranjang/checkout", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ id_meja })
+      localStorage.setItem("keranjang-last-update", Date.now());
+      window.location.href = "/menu";
+    } else {
+      alert("❌ " + (data.message || "Terjadi kesalahan"));
+    }
   });
-
-  const data = await res.json();
-  if (res.ok) {
-    alert("✅ Pesanan berhasil dibuat!");
-    Object.keys(localStorage)
-      .filter(k => k.startsWith("keranjang-"))
-      .forEach(k => localStorage.removeItem(k));
-    window.location.href = "/menu";
-  } else {
-    alert("❌ " + (data.message || "Terjadi kesalahan"));
-  }
-});
 
   /* =====================================================
      🔸 Sinkronisasi antar-tab (storage event)
