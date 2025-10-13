@@ -13,6 +13,7 @@ const userRoutes = require("./routes/user");
 const keranjangRoutes = require("./routes/keranjang");
 const keranjangViewRoutes = require("./routes/keranjangView");
 const mejaRoutes = require('./routes/meja');
+const pesananRoutes = require("./routes/pesanan");
 
 
 const app = express();
@@ -49,6 +50,7 @@ app.use("/", userRoutes);
 app.use("/keranjang", keranjangRoutes);
 app.use("/keranjang/view", keranjangViewRoutes);
 app.use('/meja', mejaRoutes);
+app.use("/pesanan", pesananRoutes);
 
 // ========== DB Sync & Server ==========
 sequelize

@@ -71,8 +71,6 @@ exports.deleteItem = async (req, res) => {
   }
 };
 
-// Checkout: pakai meja dari session (QR). Jika tidak ada, buat meja default M001 bila perlu.
-// Simpan pesanan lalu kosongkan keranjang.
 exports.checkout = async (req, res) => {
   try {
     const keranjang = await Keranjang.findAll({ include: [{ model: Menu }] });
@@ -81,40 +79,59 @@ exports.checkout = async (req, res) => {
       return res.status(400).json({ message: "Keranjang masih kosong" });
     }
 
-    // pastikan ada id_meja dari session (dari proses scan QR)
+    // pastikan ada id_meja dari session
     let id_meja_to_use = null;
     if (req.session && req.session.id_meja) {
       id_meja_to_use = req.session.id_meja;
     } else {
-      // coba pakai meja default no_meja = 1, atau buat jika belum ada
       let meja = await Meja.findOne({ where: { no_meja: 1 } });
       if (!meja) {
-        const id_meja_default = "M" + String(1).padStart(3, "0");
-        // upayakan file QR sesuai naming (boleh kosong string jika tidak ada file)
-        meja = await Meja.create({ id_meja: id_meja_default, no_meja: 1, qr_code: `/uploads/qrcode/meja-1.png` });
+        meja = await Meja.create({
+          id_meja: "M001",
+          no_meja: 1,
+          qr_code: `/uploads/qrcode/meja-1.png`,
+        });
       }
       id_meja_to_use = meja.id_meja;
     }
 
-    // hitung total (jika dibutuhkan)
-    const totalHarga = keranjang.reduce((sum, it) => sum + it.jumlah * (it.Menu ? it.Menu.harga : 0), 0);
+    // hitung total harga
+    const totalHarga = keranjang.reduce(
+      (sum, it) => sum + it.jumlah * (it.Menu ? it.Menu.harga : 0),
+      0
+    );
 
+    // buat pesanan baru
     const id_pesanan = uuidv4();
-    await Pesanan.create({
+    const pesananBaru = await Pesanan.create({
       id_pesanan,
       tanggal_pesan: new Date(),
-      status_pesanan: "Menunggu Konfirmasi",
+      status_pesanan: "Menunggu Pembayaran",
       id_meja: id_meja_to_use,
-      id_keranjang: null,
     });
 
-    // kosongkan keranjang
-    await Keranjang.destroy({ where: {} });
+    // hubungkan semua item keranjang ke pesanan baru
+    for (const item of keranjang) {
+      item.id_pesanan = id_pesanan;
+      await item.save();
+    }
 
-    // kembalikan data sukses
-    res.json({ success: true, id_pesanan, totalHarga });
+    // jika kamu ingin simpan id_keranjang pertama ke pesanan
+    if (keranjang[0]) {
+      await pesananBaru.update({ id_keranjang: keranjang[0].id_keranjang });
+    }
+
+    res.redirect(`/pesanan/status/${id_meja_to_use}`);
+
+    res.json({
+      success: true,
+      id_pesanan,
+      totalHarga,
+      message: "Checkout berhasil!",
+    });
   } catch (err) {
     console.error("❌ Error checkout:", err);
     res.status(500).json({ error: err.message });
   }
 };
+

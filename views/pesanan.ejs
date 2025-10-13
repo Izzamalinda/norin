@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/css/admin.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    table { width: 100%; border-collapse: collapse; }
+    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+    th { background: #f4f4f4; }
+    .menu-list { margin: 0; padding-left: 15px; }
+  </style>
+</head>
+<body class="bg-[#fff7ed] min-h-screen flex">
+
+  <!-- Sidebar -->
+  <%- include('partials/sidebarAdmin') %>
+
+  <!-- Konten utama -->
+  <main class="flex-1 ml-64 p-8">
+    <h1 class="text-2xl font-bold mb-6">Daftar Pesanan</h1>
+
+    <div class="bg-white rounded-xl shadow-lg p-6">
+      <table class="min-w-full border border-gray-200 rounded-lg overflow-hidden">
+        <thead class="bg-gray-100">
+          <tr>
+            <th class="px-4 py-2">ID Pesanan</th>
+            <th class="px-4 py-2">Tanggal</th>
+            <th class="px-4 py-2">No Meja</th>
+            <th class="px-4 py-2">Menu Dipesan</th>
+            <th class="px-4 py-2">Total Harga</th>
+            <th class="px-4 py-2">Status</th>
+            <th class="px-4 py-2">Aksi</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% pesanan.forEach(p => { %>
+            <tr class="hover:bg-gray-50">
+              <td class="px-4 py-2 font-mono text-sm"><%= p.id_pesanan %></td>
+              <td class="px-4 py-2"><%= new Date(p.tanggal_pesan).toLocaleString('id-ID') %></td>
+              <td class="px-4 py-2"><%= p.Meja ? p.Meja.no_meja : '-' %></td>
+
+              <!-- Daftar semua menu yang dipesan -->
+              <td class="px-4 py-2">
+                <% if (p.Keranjangs && p.Keranjangs.length > 0) { %>
+                  <ul class="menu-list">
+                    <% p.Keranjangs.forEach(k => { %>
+                      <li>
+                        <%= k.Menu ? k.Menu.nama : '(Menu tidak ditemukan)' %>  
+                        (<%= k.jumlah %>x) — 
+                        Rp <%= (k.Menu ? (k.Menu.harga * k.jumlah).toLocaleString('id-ID') : 0) %>
+                      </li>
+                    <% }) %>
+                  </ul>
+                <% } else { %>
+                  <em>Tidak ada menu</em>
+                <% } %>
+              </td>
+
+              <!-- Total harga semua menu -->
+              <td class="px-4 py-2 font-semibold text-orange-600">
+                Rp <%= p.Keranjangs && p.Keranjangs.length > 0 
+                      ? p.Keranjangs.reduce((sum, k) => sum + (k.Menu ? k.Menu.harga * k.jumlah : 0), 0).toLocaleString('id-ID') 
+                      : '0' %>
+              </td>
+
+              <td class="px-4 py-2"><%= p.status_pesanan %></td>
+
+              <td class="px-4 py-2">
+                <form action="/admin/daftar-pesanan/<%= p.id_pesanan %>/update" method="POST" class="flex items-center gap-2">
+                  <select name="status_pesanan" class="border rounded px-2 py-1 text-sm">
+                    <option <%= p.status_pesanan === "Menunggu Pembayaran" ? "selected" : "" %>>Menunggu Pembayaran</option>
+                    <option <%= p.status_pesanan === "Diproses" ? "selected" : "" %>>Diproses</option>
+                    <option <%= p.status_pesanan === "Selesai" ? "selected" : "" %>>Selesai</option>
+                  </select>
+                  <button type="submit" class="bg-orange-500 hover:bg-orange-600 text-white px-3 py-1 rounded text-sm">
+                    Update
+                  </button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </main>
+</body>
+</html>

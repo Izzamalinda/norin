@@ -97,7 +97,7 @@
           <i class="fas fa-utensils text-lg"></i>
           <span>Kelola Menu</span>
         </a>
-        <a href="/pesanan" id="menu-pesanan" class="menu-item bg-white/10 text-white font-semibold px-4 py-3 rounded-xl flex items-center space-x-3 hover:bg-gradient-to-r hover:from-orange-500 hover:to-red-600">
+        <a href="/admin/daftar-pesanan" id="menu-pesanan" class="menu-item bg-white/10 text-white font-semibold px-4 py-3 rounded-xl flex items-center space-x-3 hover:bg-gradient-to-r hover:from-orange-500 hover:to-red-600">
           <i class="fas fa-shopping-cart text-lg"></i>
           <span>Pesanan</span>
         </a>
@@ -141,7 +141,7 @@ document.addEventListener('DOMContentLoaded', function() {
         activeMenu = document.getElementById('menu-dashboard');
     } else if (currentPath.includes('/admin/kelola-menu')) {
         activeMenu = document.getElementById('menu-kelola');
-    } else if (currentPath.includes('/pesanan')) {
+    } else if (currentPath.includes('/admin/daftar-pesanan')) {
         activeMenu = document.getElementById('menu-pesanan');
     }
     

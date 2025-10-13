@@ -3,6 +3,8 @@ const router = express.Router();
 const menuController = require("../controllers/menuController");
 const upload = require("../config/multer-menu");
 const dashboardController = require("../controllers/dashboardController");
+const pesananController = require("../controllers/pesananController");
+
 
 function checkAuth(req, res, next) {
   if (!req.session.user) {
@@ -34,6 +36,8 @@ router.get("/kelola-menu", checkAuth, menuController.getAll);
 router.post("/kelola-menu", upload.single("foto"), menuController.create);
 router.post("/kelola-menu/:id/update", upload.single("foto"), menuController.update);
 router.post("/kelola-menu/:id/delete", menuController.delete);
+router.get("/daftar-pesanan", checkAuth, pesananController.getAllPesanan);
+router.post("/daftar-pesanan/:id_pesanan/update", checkAuth, pesananController.updateStatus);
 
 // API Dashboard JSON (opsional)
 router.get("/api/dashboard/summary", checkAuth, dashboardController.getSummary);

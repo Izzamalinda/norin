@@ -40,7 +40,7 @@ router.post('/generate', async (req, res) => {
       });
     }
 
-    const menuUrl = `http://192.168.100.73:3000/menu?meja=${no_meja}`;
+    const menuUrl = `http://192.168.1.12:3000/menu?meja=${no_meja}`;
     const qrFile = `meja-${no_meja}.png`;
     const qrPath = path.join(qrDir, qrFile);
     const qrRelativePath = `/uploads/qrcode/${qrFile}`;

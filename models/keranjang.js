@@ -4,36 +4,44 @@ const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class Keranjang extends Model {
     static associate(models) {
-      // Keranjang berisi 1 menu
+      // Setiap item keranjang punya 1 menu
       Keranjang.belongsTo(models.Menu, { foreignKey: 'id_menu' });
-      // Keranjang bisa dipakai di banyak pesanan
-      Keranjang.hasMany(models.Pesanan, { foreignKey: 'id_keranjang' });
+
+      // Setiap item keranjang milik 1 pesanan
+      Keranjang.belongsTo(models.Pesanan, { foreignKey: 'id_pesanan' });
     }
   }
 
-  Keranjang.init({
-    id_keranjang: {
-      type: DataTypes.STRING(50),
-      primaryKey: true
+  Keranjang.init(
+    {
+      id_keranjang: {
+        type: DataTypes.STRING(50),
+        primaryKey: true,
+      },
+      id_menu: {
+        type: DataTypes.STRING(50),
+        allowNull: false,
+      },
+      jumlah: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
+      catatan: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      id_pesanan: {
+        type: DataTypes.STRING(50),
+        allowNull: true, // akan diisi saat checkout
+      },
     },
-    id_menu: {
-      type: DataTypes.STRING(50),
-      allowNull: false
-    },
-    jumlah: {
-      type: DataTypes.INTEGER,
-      allowNull: false
-    },
-    catatan: {
-      type: DataTypes.STRING,
-      allowNull: true
+    {
+      sequelize,
+      modelName: 'Keranjang',
+      tableName: 'keranjang',
+      timestamps: false,
     }
-  }, {
-    sequelize,
-    modelName: 'Keranjang',
-    tableName: 'keranjang',
-    timestamps: false
-  });
+  );
 
   return Keranjang;
 };

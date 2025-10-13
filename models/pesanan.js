@@ -7,7 +7,7 @@ module.exports = (sequelize, DataTypes) => {
       // Relasi ke meja
       Pesanan.belongsTo(models.Meja, { foreignKey: 'id_meja' });
       // Relasi ke keranjang (opsional)
-      Pesanan.belongsTo(models.Keranjang, { foreignKey: 'id_keranjang' });
+      Pesanan.hasMany(models.Keranjang, { foreignKey: 'id_pesanan' });
     }
   }
 
