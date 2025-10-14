@@ -1,5 +1,6 @@
 // controllers/pesananController.js
 const { Pesanan, Meja, Keranjang, Menu } = require("../models");
+const { Op } = require("sequelize");
 
 // ✅ ADMIN - Menampilkan semua pesanan
 exports.getAllPesanan = async (req, res) => {
@@ -37,10 +38,6 @@ exports.updateStatus = async (req, res) => {
 
     await pesanan.update({ status_pesanan });
 
-    // 🧹 Hapus keranjang terkait jika pesanan selesai
-    if (status_pesanan === "Selesai") {
-      await Keranjang.destroy({ where: { id_pesanan } });
-    }
 
     res.redirect("/admin/daftar-pesanan");
   } catch (err) {
@@ -55,12 +52,15 @@ exports.getPesananByMeja = async (req, res) => {
     const { id_meja } = req.params;
 
     const pesanan = await Pesanan.findAll({
-      where: { id_meja },
-      include: [
-        { model: Keranjang, include: [{ model: Menu, attributes: ["nama", "harga"] }] },
-      ],
-      order: [["tanggal_pesan", "DESC"]],
-    });
+  where: {
+    id_meja,
+    status_pesanan: { [Op.notIn]: ["Selesai", "Completed"] }
+  },
+  include: [
+    { model: Keranjang, include: [{ model: Menu, attributes: ["nama", "harga"] }] },
+  ],
+  order: [["tanggal_pesan", "DESC"]],
+});
 
     res.render("statusPesanan", {
       title: "Status Pesanan Anda",

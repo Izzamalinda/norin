@@ -15,7 +15,7 @@ async function getSummary(req, res) {
     const q2 = await sequelize.query(
       `SELECT COALESCE(SUM(k.jumlah * m.harga),0) AS revenue
        FROM pesanan p
-       JOIN keranjang k ON p.id_keranjang = k.id_keranjang
+       JOIN keranjang k ON p.id_pesanan = k.id_pesanan
        JOIN menu m ON k.id_menu = m.id_menu
        WHERE DATE(p.tanggal_pesan) = :today
          AND p.status_pesanan IN ('Selesai','Completed','completed')`,
@@ -33,7 +33,9 @@ async function getSummary(req, res) {
     }
 
     const q3 = await sequelize.query(
-      `SELECT COUNT(DISTINCT id_meja) AS cnt FROM pesanan`,
+      `SELECT COUNT(DISTINCT id_meja) AS cnt 
+      FROM pesanan
+      WHERE status_pesanan IN ('Menunggu Pembayaran', 'Diproses')`,
       { type: QueryTypes.SELECT }
     );
     const customerAktif = q3[0].cnt || 0;
@@ -62,7 +64,7 @@ async function getSalesAnalytics(req, res) {
     const rows = await sequelize.query(
       `SELECT DATE(p.tanggal_pesan) as date, COALESCE(SUM(k.jumlah * m.harga),0) as revenue
        FROM pesanan p
-       JOIN keranjang k ON p.id_keranjang = k.id_keranjang
+       JOIN keranjang k ON p.id_pesanan = k.id_pesanan
        JOIN menu m ON k.id_menu = m.id_menu
        WHERE p.tanggal_pesan BETWEEN :start AND DATE_ADD(:end, INTERVAL 1 DAY)
        GROUP BY DATE(p.tanggal_pesan)`,
@@ -97,7 +99,7 @@ async function getTopCategories(req, res) {
     const rows = await sequelize.query(
       `SELECT m.kategori, COALESCE(SUM(k.jumlah),0) as total_sold
        FROM pesanan p
-       JOIN keranjang k ON p.id_keranjang = k.id_keranjang
+       JOIN keranjang k ON p.id_pesanan = k.id_pesanan
        JOIN menu m ON k.id_menu = m.id_menu
        WHERE p.tanggal_pesan BETWEEN :start AND DATE_ADD(:end, INTERVAL 1 DAY)
          AND p.status_pesanan IN ('Selesai','Completed','completed')
@@ -136,7 +138,7 @@ async function getRecentActivities(req, res) {
               COALESCE(SUM(k.jumlah * m.harga),0) AS total_amount,
               GROUP_CONCAT(CONCAT(m.nama, ' x', k.jumlah) SEPARATOR ', ') AS items
        FROM pesanan p
-       LEFT JOIN keranjang k ON p.id_keranjang = k.id_keranjang
+       LEFT JOIN keranjang k ON p.id_pesanan = k.id_pesanan
        LEFT JOIN menu m ON k.id_menu = m.id_menu
        GROUP BY p.id_pesanan, p.tanggal_pesan, p.status_pesanan
        ORDER BY p.tanggal_pesan DESC

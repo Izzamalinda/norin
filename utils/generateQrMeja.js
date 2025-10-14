@@ -5,7 +5,7 @@ const fs = require('fs');
 const path = require('path');
 
 async function generateQrMeja(no_meja, outputDir) {
-  const menuUrl = `http://192.168.1.92:3000/menu?meja=${no_meja}`;
+  const menuUrl = `http://10.44.8.101:3000/menu?meja=${no_meja}`;
   const qrFile = `meja-${no_meja}.png`;
   const qrPath = path.join(outputDir, qrFile);
   const qrRelativePath = `/uploads/qrcode/${qrFile}`;

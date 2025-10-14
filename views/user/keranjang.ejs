@@ -190,7 +190,7 @@
         .forEach(k => localStorage.removeItem(k));
 
       localStorage.setItem("keranjang-last-update", Date.now());
-      window.location.href = "/menu";
+      window.location.href = `/pesanan/status/${data.id_meja}`;
     } else {
       alert("❌ " + (data.message || "Terjadi kesalahan"));
     }

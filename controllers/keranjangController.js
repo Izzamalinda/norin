@@ -109,7 +109,7 @@ exports.checkout = async (req, res) => {
     // Kosongkan keranjang setelah checkout
     req.session.keranjang = [];
 
-    res.redirect(`/pesanan/status/${id_meja}`);
+    res.json({ success: true, id_meja });
   } catch (err) {
     console.error("❌ Checkout error:", err);
     res.status(500).json({ error: err.message });
