@@ -42,7 +42,7 @@ router.post("/daftar-pesanan/:id_pesanan/update", checkAuth, pesananController.u
 // API Dashboard JSON (opsional)
 router.get("/api/dashboard/summary", checkAuth, dashboardController.getSummary);
 router.get("/api/dashboard/sales", checkAuth, dashboardController.getSalesAnalytics);
-router.get("/api/dashboard/top-categories", checkAuth, dashboardController.getTopCategories);
+router.get("/api/dashboard/top-menus", checkAuth, dashboardController.getTopMenus);
 router.get("/api/dashboard/recent-activities", checkAuth, dashboardController.getRecentActivities);
 router.post("/api/dashboard/actions/menu", checkAuth, dashboardController.createMenuQuick);
 

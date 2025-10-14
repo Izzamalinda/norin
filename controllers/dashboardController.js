@@ -90,41 +90,42 @@ async function getSalesAnalytics(req, res) {
   }
 }
 
-// === Top Categories (Kategori Terlaris) ===
-async function getTopCategories(req, res) {
+// === Top Menus (Menu Terlaris) ===
+async function getTopMenus(req, res) {
   try {
     const days = parseInt(req.query.days) || 30;
     const start = moment().subtract(days, "days").format("YYYY-MM-DD");
 
     const rows = await sequelize.query(
-      `SELECT m.kategori, COALESCE(SUM(k.jumlah),0) as total_sold
+      `SELECT m.nama AS nama_menu, COALESCE(SUM(k.jumlah), 0) AS total_terjual
        FROM pesanan p
        JOIN keranjang k ON p.id_pesanan = k.id_pesanan
        JOIN menu m ON k.id_menu = m.id_menu
        WHERE p.tanggal_pesan BETWEEN :start AND DATE_ADD(:end, INTERVAL 1 DAY)
-         AND p.status_pesanan IN ('Selesai','Completed','completed')
-       GROUP BY m.kategori
-       ORDER BY total_sold DESC
-       LIMIT 10`,
+         AND p.status_pesanan IN ('Selesai', 'Completed', 'completed')
+       GROUP BY m.nama
+       ORDER BY total_terjual DESC
+       LIMIT 5`,
       {
         replacements: { start, end: moment().format("YYYY-MM-DD") },
         type: QueryTypes.SELECT,
       }
     );
 
-    console.log('🏷️ TOP CATEGORIES RAW:', rows);
+    console.log("🍰 TOP MENUS RAW:", rows);
 
-    const result = rows.map((r) => ({
-      kategori: r.kategori,
-      total: Number(r.total_sold),
+    const result = rows.map(r => ({
+      nama_menu: r.nama_menu,
+      total_terjual: Number(r.total_terjual),
     }));
 
     return res.json({ success: true, data: result });
   } catch (err) {
-    console.error("getTopCategories", err);
+    console.error("getTopMenus", err);
     return res.status(500).json({ success: false, message: err.message });
   }
 }
+
 
 // === Recent Activities (Pesanan Terbaru) ===
 async function getRecentActivities(req, res) {
@@ -191,7 +192,8 @@ module.exports = {
   renderDashboard,
   getSummary,
   getSalesAnalytics,
-  getTopCategories,
+  getTopMenus,
   getRecentActivities,
   createMenuQuick,
 };
+
