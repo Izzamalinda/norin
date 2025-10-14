@@ -127,11 +127,22 @@ async function getTopMenus(req, res) {
 }
 
 
-// === Recent Activities (Pesanan Terbaru) ===
+// === Recent Activities (Pesanan Terbaru dengan Pagination) ===
 async function getRecentActivities(req, res) {
   try {
-    const limit = parseInt(req.query.limit) || 6;
+    const page = parseInt(req.query.page) || 1;   // halaman aktif
+    const limit = parseInt(req.query.limit) || 5; // jumlah per halaman
+    const offset = (page - 1) * limit;
 
+    // Hitung total pesanan
+    const countResult = await sequelize.query(
+      `SELECT COUNT(DISTINCT id_pesanan) AS total FROM pesanan`,
+      { type: QueryTypes.SELECT }
+    );
+    const totalData = countResult[0].total;
+    const totalPages = Math.ceil(totalData / limit);
+
+    // Ambil data per halaman
     const rows = await sequelize.query(
       `SELECT p.id_pesanan,
               p.tanggal_pesan,
@@ -143,8 +154,8 @@ async function getRecentActivities(req, res) {
        LEFT JOIN menu m ON k.id_menu = m.id_menu
        GROUP BY p.id_pesanan, p.tanggal_pesan, p.status_pesanan
        ORDER BY p.tanggal_pesan DESC
-       LIMIT :limit`,
-      { replacements: { limit }, type: QueryTypes.SELECT }
+       LIMIT :limit OFFSET :offset`,
+      { replacements: { limit, offset }, type: QueryTypes.SELECT }
     );
 
     const activities = rows.map((r) => ({
@@ -155,7 +166,11 @@ async function getRecentActivities(req, res) {
       items: r.items,
     }));
 
-    return res.json({ success: true, data: activities });
+    return res.json({
+      success: true,
+      data: activities,
+      pagination: { page, totalPages, totalData }
+    });
   } catch (err) {
     console.error("getRecentActivities", err);
     return res.status(500).json({ success: false, message: err.message });
