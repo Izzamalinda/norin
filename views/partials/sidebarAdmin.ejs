@@ -52,15 +52,15 @@
 
   <!-- partials/sidebarAdmin.ejs -->
 <aside 
-  class="w-64 h-screen fixed top-0 left-0 sidebar-gradient text-white shadow-2xl z-50 flex flex-col overflow-y-auto">
+  class="w-64 h-screen fixed top-0 left-0 sidebar-gradient text-white shadow-2xl z-50 flex flex-col justify-between overflow-hidden">
 
   <!-- Background Decoration -->
   <div class="absolute top-0 right-0 w-40 h-40 bg-orange-500/10 rounded-full blur-3xl"></div>
   <div class="absolute bottom-0 left-0 w-32 h-32 bg-red-500/10 rounded-full blur-2xl"></div>
 
   <!-- Wrapper isi sidebar -->
-  <div class="relative z-10 h-full flex flex-col justify-between">
-    
+  <div class="relative z-10 h-full flex flex-col justify-between select-none">
+
     <!-- Top Section -->
     <div class="p-6">
       <!-- Brand Header -->
@@ -89,27 +89,30 @@
 
       <!-- Menu Navigasi -->
       <nav class="flex flex-col space-y-3">
-        <a href="/admin" id="menu-dashboard" class="menu-item bg-white/10 text-white font-semibold px-4 py-3 rounded-xl flex items-center space-x-3 hover:bg-gradient-to-r hover:from-orange-500 hover:to-red-600">
+        <a href="/admin" id="menu-dashboard"
+          class="menu-item bg-white/10 text-white font-semibold px-4 py-3 rounded-xl flex items-center space-x-3 hover:bg-gradient-to-r hover:from-orange-500 hover:to-red-600">
           <i class="fas fa-chart-pie text-lg"></i>
           <span>Dashboard</span>
         </a>
-        <a href="/admin/kelola-menu" id="menu-kelola" class="menu-item bg-white/10 text-white font-semibold px-4 py-3 rounded-xl flex items-center space-x-3 hover:bg-gradient-to-r hover:from-orange-500 hover:to-red-600">
+        <a href="/admin/kelola-menu" id="menu-kelola"
+          class="menu-item bg-white/10 text-white font-semibold px-4 py-3 rounded-xl flex items-center space-x-3 hover:bg-gradient-to-r hover:from-orange-500 hover:to-red-600">
           <i class="fas fa-utensils text-lg"></i>
           <span>Kelola Menu</span>
         </a>
-        <a href="/admin/daftar-pesanan" id="menu-pesanan" class="menu-item bg-white/10 text-white font-semibold px-4 py-3 rounded-xl flex items-center space-x-3 hover:bg-gradient-to-r hover:from-orange-500 hover:to-red-600">
+        <a href="/admin/daftar-pesanan" id="menu-pesanan"
+          class="menu-item bg-white/10 text-white font-semibold px-4 py-3 rounded-xl flex items-center space-x-3 hover:bg-gradient-to-r hover:from-orange-500 hover:to-red-600">
           <i class="fas fa-shopping-cart text-lg"></i>
           <span>Pesanan</span>
         </a>
-        <a href="/meja/list" id="menu-meja" 
-   class="menu-item bg-white/10 text-white font-semibold px-4 py-3 rounded-xl flex items-center space-x-3 hover:bg-gradient-to-r hover:from-orange-500 hover:to-red-600">
-  <i class="fas fa-qrcode text-lg"></i>
-  <span>Daftar Meja</span>
-</a>
-
+        <a href="/meja/list" id="menu-meja"
+          class="menu-item bg-white/10 text-white font-semibold px-4 py-3 rounded-xl flex items-center space-x-3 hover:bg-gradient-to-r hover:from-orange-500 hover:to-red-600">
+          <i class="fas fa-qrcode text-lg"></i>
+          <span>Daftar Meja</span>
+        </a>
 
         <!-- Logout -->
-        <a href="/logout" class="menu-item bg-gradient-to-r from-red-600 to-red-700 text-white font-semibold px-4 py-3 rounded-xl flex items-center space-x-3 mt-8 shadow-lg hover:from-red-700 hover:to-red-800">
+        <a href="/logout"
+          class="menu-item bg-gradient-to-r from-red-600 to-red-700 text-white font-semibold px-4 py-3 rounded-xl flex items-center space-x-3 mt-8 shadow-lg hover:from-red-700 hover:to-red-800">
           <i class="fas fa-sign-out-alt text-lg"></i>
           <span>Logout</span>
         </a>
@@ -124,33 +127,34 @@
 </aside>
 
 <script>
-// Fungsi sederhana untuk mengatur menu aktif
-document.addEventListener('DOMContentLoaded', function() {
-    // Reset semua menu ke state default
-    const allMenus = document.querySelectorAll('#menu-dashboard, #menu-kelola, #menu-pesanan, #menu-meja');
-    allMenus.forEach(menu => {
-        menu.className = 'menu-item bg-white/10 text-white font-semibold px-4 py-3 rounded-xl flex items-center space-x-3 hover:bg-gradient-to-r hover:from-orange-500 hover:to-red-600';
+  document.addEventListener('DOMContentLoaded', function() {
+    const menus = {
+      dashboard: document.getElementById('menu-dashboard'),
+      kelola: document.getElementById('menu-kelola'),
+      pesanan: document.getElementById('menu-pesanan'),
+      meja: document.getElementById('menu-meja')
+    };
+
+    // Reset semua ke default
+    Object.values(menus).forEach(menu => {
+      menu.className = 'menu-item bg-white/10 text-white font-semibold px-4 py-3 rounded-xl flex items-center space-x-3 hover:bg-gradient-to-r hover:from-orange-500 hover:to-red-600';
     });
-    
-    // Dapatkan path saat ini
-    const currentPath = window.location.pathname;
-    let activeMenu = null;
-    
-    // Tentukan menu aktif berdasarkan URL
-    if (currentPath === '/admin' || currentPath === '/admin/') {
-        activeMenu = document.getElementById('menu-dashboard');
-    } else if (currentPath.includes('/admin/kelola-menu')) {
-        activeMenu = document.getElementById('menu-kelola');
-    } else if (currentPath.includes('/admin/daftar-pesanan')) {
-        activeMenu = document.getElementById('menu-pesanan');
+
+    // Tentukan menu aktif berdasarkan path
+    const path = window.location.pathname;
+
+    if (path === '/admin' || path === '/admin/' || path.startsWith('/admin/api') || path.startsWith('/admin/dashboard')) {
+      menus.dashboard.className = 'menu-item bg-gradient-to-r from-orange-500 to-red-600 text-white font-semibold px-4 py-3 rounded-xl flex items-center space-x-3 shadow-lg';
+    } else if (path.startsWith('/admin/kelola-menu')) {
+      menus.kelola.className = 'menu-item bg-gradient-to-r from-orange-500 to-red-600 text-white font-semibold px-4 py-3 rounded-xl flex items-center space-x-3 shadow-lg';
+    } else if (path.startsWith('/admin/daftar-pesanan')) {
+      menus.pesanan.className = 'menu-item bg-gradient-to-r from-orange-500 to-red-600 text-white font-semibold px-4 py-3 rounded-xl flex items-center space-x-3 shadow-lg';
+    } else if (path.startsWith('/meja')) {
+      menus.meja.className = 'menu-item bg-gradient-to-r from-orange-500 to-red-600 text-white font-semibold px-4 py-3 rounded-xl flex items-center space-x-3 shadow-lg';
     }
-    
-    // Terapkan style aktif
-    if (activeMenu) {
-        activeMenu.className = 'menu-item bg-gradient-to-r from-orange-500 to-red-600 text-white font-semibold px-4 py-3 rounded-xl flex items-center space-x-3 shadow-lg';
-    }
-});
+  });
 </script>
+
     
 </body>
 </html>

@@ -1,6 +1,6 @@
 // controllers/keranjangController.js
-const { v4: uuidv4 } = require("uuid");
 const { Menu, Pesanan, Keranjang } = require("../models");
+const { Op } = require("sequelize");
 const { ensureMejaExists, hasActivePesanan } = require("./mejaController");
 
 // 🧺 Tambah ke keranjang (disimpan di session)
@@ -86,19 +86,45 @@ exports.checkout = async (req, res) => {
     if (aktif) return res.redirect(`/pesanan/status/${id_meja}`);
 
     const totalHarga = items.reduce((sum, i) => sum + i.total_harga, 0);
-    const id_pesanan = uuidv4();
+
+    const lastOrder = await Pesanan.findOne({
+  where: { id_pesanan: { [Op.like]: 'PSN%' } },
+  order: [['id_pesanan', 'DESC']],
+});
+
+let lastNumber = 0;
+if (lastOrder && /^PSN\d+$/.test(lastOrder.id_pesanan)) {
+  lastNumber = parseInt(lastOrder.id_pesanan.replace('PSN', ''), 10);
+}
+
+const id_pesanan = 'PSN' + String(lastNumber + 1).padStart(4, '0');
+
 
     await Pesanan.create({
-      id_pesanan,
-      tanggal_pesan: new Date(),
-      status_pesanan: "Menunggu Pembayaran",
-      total_harga: totalHarga,
-      id_meja,
-    });
+  id_pesanan,
+  tanggal_pesan: new Date(new Date().getTime() + 7 * 60 * 60 * 1000), // ✅ +7 jam
+  status_pesanan: "Menunggu Pembayaran",
+  total_harga: totalHarga,
+  id_meja,
+});
 
-    for (const i of items) {
+
+     for (const i of items) {
+      const lastCart = await Keranjang.findOne({
+  where: { id_keranjang: { [Op.like]: 'KRJ%' } },
+  order: [['id_keranjang', 'DESC']],
+});
+
+let lastCartNumber = 0;
+if (lastCart && /^KRJ\d+$/.test(lastCart.id_keranjang)) {
+  lastCartNumber = parseInt(lastCart.id_keranjang.replace('KRJ', ''), 10);
+}
+
+const id_keranjang = 'KRJ' + String(lastCartNumber + 1).padStart(4, '0');
+
+
       await Keranjang.create({
-        id_keranjang: uuidv4(),
+        id_keranjang,
         id_menu: i.id_menu,
         jumlah: i.jumlah,
         total_harga: i.total_harga,

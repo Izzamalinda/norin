@@ -3,215 +3,209 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Keranjang Belanja - Norin Cafe</title>
+  <title>Keranjang - Norin Cafe</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-</head>
-<body class="bg-white min-h-screen text-gray-800">
 
-  <nav class="bg-white flex justify-between items-center px-6 py-4 shadow-md sticky top-0 z-50">
-    <h1 class="text-2xl font-bold text-orange-600">Norin Cafe</h1>
-    <a href="/menu" class="hover:text-orange-600 font-medium">Kembali ke Menu</a>
+  <style>
+    body {
+      background: linear-gradient(135deg, #fef7f0 0%, #fff8f2 100%);
+    }
+    .glass-effect {
+      backdrop-filter: blur(10px);
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+    .gradient-text {
+      background: linear-gradient(45deg, #ea580c, #fb923c);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .btn-orange {
+      background: linear-gradient(to right, #f97316, #ea580c);
+    }
+    .btn-orange:hover {
+      background: linear-gradient(to right, #ea580c, #c2410c);
+    }
+  </style>
+</head>
+<body class="min-h-screen text-gray-800 flex flex-col">
+
+  <!-- Navbar -->
+  <nav class="glass-effect flex flex-wrap justify-between items-center px-6 py-4 shadow-md sticky top-0 z-50">
+    <h1 class="text-2xl md:text-3xl font-extrabold gradient-text">Norin Cafe</h1>
+    <a href="/menu" class="text-orange-600 font-medium hover:underline text-sm md:text-base mt-2 md:mt-0">
+      <i class="fas fa-arrow-left mr-2"></i>Kembali ke Menu
+    </a>
   </nav>
 
-  <div class="container mx-auto p-6 flex gap-6">
-    
-    <!-- Daftar Keranjang -->
-    <section class="w-2/3">
-      <h2 class="text-2xl font-bold mb-6">Keranjang Belanja</h2>
+  <div class="container mx-auto p-4 md:p-8 flex flex-col lg:flex-row gap-8 flex-grow">
+
+    <!-- Bagian kiri: daftar keranjang -->
+    <section class="w-full lg:w-2/3">
+      <h2 class="text-2xl font-bold mb-6 gradient-text text-center lg:text-left">Keranjang Belanja</h2>
 
       <% if (keranjang.length > 0) { %>
         <% keranjang.forEach(item => { %>
-          <div class="flex items-center justify-between bg-white border rounded-xl shadow-sm p-4 mb-4 item-row" 
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between glass-effect rounded-2xl shadow-md p-4 mb-4 item-row" 
             data-id-menu="<%= item.id_menu %>" data-price="<%= item.Menu?.harga || 0 %>">
-            <div class="flex items-center space-x-4">
-              <img src="<%= item.Menu?.foto %>" 
-                   alt="<%= item.Menu?.nama %>" 
-                   class="w-20 h-20 rounded-lg object-cover">
+
+            <div class="flex items-center space-x-4 mb-3 sm:mb-0">
+              <img src="<%= item.Menu?.foto %>" alt="<%= item.Menu?.nama %>" 
+                   class="w-20 h-20 rounded-xl object-cover shadow-md">
               <div>
                 <h3 class="font-semibold text-lg"><%= item.Menu?.nama %></h3>
                 <p class="text-orange-600 font-bold">Rp <%= item.Menu?.harga.toLocaleString('id-ID') %></p>
               </div>
             </div>
-            <div class="flex items-center space-x-3">
-              <button class="btn-keranjang-kurang bg-orange-500 text-white px-3 py-1 rounded-full" onclick="ubahJumlah('<%= item.id_menu %>', 'kurang')">−</button>
-              <span id="jumlah-<%= item.id_menu %>" class="jumlah-span px-2 font-semibold" data-harga="<%= item.Menu?.harga %>"><%= item.jumlah %></span>
-              <button class="btn-keranjang-tambah bg-orange-500 text-white px-3 py-1 rounded-full" onclick="ubahJumlah('<%= item.id_menu %>', 'tambah')">+</button>
-              <button class="text-red-500 hover:text-red-700" onclick="hapusItem('<%= item.id_menu %>')">
+
+            <div class="flex items-center justify-end sm:justify-center space-x-3">
+              <button class="bg-orange-500 text-white px-3 py-1 rounded-full shadow hover:bg-orange-600" onclick="ubahJumlah('<%= item.id_menu %>', 'kurang')">−</button>
+              <span id="jumlah-<%= item.id_menu %>" class="jumlah-span px-3 font-semibold text-gray-800 text-lg" data-harga="<%= item.Menu?.harga %>"><%= item.jumlah %></span>
+              <button class="bg-orange-500 text-white px-3 py-1 rounded-full shadow hover:bg-orange-600" onclick="ubahJumlah('<%= item.id_menu %>', 'tambah')">+</button>
+              <button class="text-red-500 hover:text-red-700 transition" onclick="hapusItem('<%= item.id_menu %>')">
                 <i class="fas fa-trash"></i>
               </button>
             </div>
           </div>
         <% }) %>
       <% } else { %>
-        <div class="bg-gray-50 border rounded-xl p-10 text-center">
-          <i class="fas fa-box-open text-5xl text-gray-400 mb-3"></i>
-          <p class="text-gray-600 font-medium">Keranjang kosong. Yuk pesan makanan dulu!</p>
-          <a href="/menu" class="mt-4 inline-block bg-orange-500 text-white px-6 py-2 rounded-full hover:bg-orange-600 transition">Lihat Menu</a>
+        <div class="glass-effect rounded-3xl shadow-lg p-10 text-center mt-6">
+          <i class="fas fa-box-open text-6xl text-gray-400 mb-4"></i>
+          <p class="text-gray-600 font-medium mb-4">Keranjang kamu masih kosong 😢</p>
+          <a href="/menu" class="inline-block btn-orange text-white px-6 py-3 rounded-full shadow-md hover:scale-105 transition">
+            <i class="fas fa-utensils mr-2"></i>Pesan Sekarang
+          </a>
         </div>
       <% } %>
     </section>
 
-    <!-- Ringkasan -->
-    <aside class="w-1/3 bg-white border rounded-xl shadow-md p-6 h-fit">
-      <h3 class="text-lg font-bold mb-4">Ringkasan Pesanan</h3>
-      <div class="flex justify-between font-medium text-sm mb-2">
-        <span id="totalItem"><%= keranjang.length %> item</span>
-        <span id="totalHarga">Rp <%= totalHarga.toLocaleString('id-ID') %></span>
-      </div>
-      <div class="flex justify-between font-bold text-lg mb-2">
-        <span>TOTAL</span>
-        <span id="totalHargaBesar" class="text-orange-600">Rp <%= totalHarga.toLocaleString('id-ID') %></span>
-      </div>
-      <button id="btnCheckout" 
-        class="w-full bg-orange-500 text-white py-3 rounded-lg font-semibold hover:bg-orange-600 transition">
-        CHECK OUT
-      </button>
-      <div id="checkoutModal" class="fixed inset-0 hidden bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white rounded-2xl p-8 shadow-2xl w-96 text-center">
-          <h2 class="text-xl font-bold text-gray-800 mb-4">Konfirmasi Checkout</h2>
-          <p class="text-gray-600 mb-6">Apakah kamu yakin ingin melanjutkan pemesanan ini?</p>
-            <div class="flex justify-center gap-4">
-              <button id="cancelCheckout" class="px-6 py-2 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-100 transition">Batal</button>
-              <button id="confirmCheckout" class="px-6 py-2 rounded-lg bg-orange-500 text-white hover:bg-orange-600 transition">Ya, Lanjutkan</button>
-            </div>
-        </div>
-      </div>
+    <!-- Bagian kanan: ringkasan -->
+<aside class="w-full lg:w-1/3 glass-effect rounded-3xl shadow-md p-6 h-fit sticky top-24">
+  <h3 class="text-lg md:text-xl font-bold mb-4 gradient-text text-center lg:text-left">Ringkasan Pesanan</h3>
 
-    </aside>
+  <div class="flex justify-between text-sm md:text-base mb-2">
+    <span id="totalItem"><%= keranjang.length %> item</span>
+    <span id="totalHarga">Rp <%= totalHarga.toLocaleString('id-ID') %></span>
+  </div>
+
+  <div class="flex justify-between font-bold text-lg border-t border-gray-200 pt-3 mb-2">
+    <span>Total</span>
+    <span id="totalHargaBesar" class="text-orange-600">Rp <%= totalHarga.toLocaleString('id-ID') %></span>
+  </div>
+
+  <!-- 🧾 Tambahan tulisan "Bayar di Kasir" -->
+  <p class="text-center text-sm font-semibold text-[#9a3412] mb-4">
+    💵 Bayar langsung di <span class="text-orange-500 font-bold">Kasir</span>
+  </p>
+
+  <button id="btnCheckout" 
+    class="w-full btn-orange text-white py-3 rounded-full font-semibold shadow-md hover:scale-105 transition">
+    <i class="fas fa-check-circle mr-2"></i>Checkout Sekarang
+  </button>
+</aside>
+
+
+  <!-- Modal Konfirmasi Checkout -->
+  <div id="checkoutModal" class="fixed inset-0 hidden bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-2xl p-8 shadow-2xl w-80 text-center">
+      <h2 class="text-xl font-bold mb-3 text-gray-800">Konfirmasi Checkout</h2>
+      <p class="text-gray-600 mb-6">Yakin ingin melanjutkan pesanan ini?</p>
+      <div class="flex justify-center gap-4">
+        <button id="cancelCheckout" class="px-5 py-2 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-100 transition">Batal</button>
+        <button id="confirmCheckout" class="px-5 py-2 rounded-lg bg-orange-500 text-white hover:bg-orange-600 transition">Ya, Lanjutkan</button>
+      </div>
+    </div>
   </div>
 
   <script>
-  /* =====================================================
-     🔸 Fungsi Helper
-  ===================================================== */
   function formatRupiah(num) {
     return "Rp " + Number(num).toLocaleString("id-ID");
   }
 
   function updateRingkasan(keranjangData = null) {
-  let totalItem = 0;
-  let totalHarga = 0;
-
-  if (keranjangData) {
-    totalItem = keranjangData.reduce((sum, i) => sum + i.jumlah, 0);
-    totalHarga = keranjangData.reduce((sum, i) => sum + i.total_harga, 0);
-  } else {
-    const items = document.querySelectorAll("[id^='jumlah-']");
-    items.forEach((el) => {
-      const jumlah = parseInt(el.textContent) || 0;
-      const harga = parseInt(el.dataset.harga) || 0;
-      totalItem += jumlah;
-      totalHarga += jumlah * harga;
-    });
+    let totalItem = 0, totalHarga = 0;
+    if (keranjangData) {
+      totalItem = keranjangData.reduce((s, i) => s + i.jumlah, 0);
+      totalHarga = keranjangData.reduce((s, i) => s + i.total_harga, 0);
+    } else {
+      document.querySelectorAll("[id^='jumlah-']").forEach(el => {
+        const jumlah = parseInt(el.textContent) || 0;
+        const harga = parseInt(el.dataset.harga) || 0;
+        totalItem += jumlah;
+        totalHarga += jumlah * harga;
+      });
+    }
+    document.querySelector("#totalItem").textContent = `${totalItem} item`;
+    document.querySelector("#totalHarga").textContent = formatRupiah(totalHarga);
+    document.querySelector("#totalHargaBesar").textContent = formatRupiah(totalHarga);
   }
-
-  document.querySelector("#totalItem").textContent = `${totalItem} item`;
-  document.querySelector("#totalHarga").textContent = formatRupiah(totalHarga);
-  document.querySelector("#totalHargaBesar").textContent = formatRupiah(totalHarga);
-}
-
 
   async function ubahJumlah(id_menu, action) {
-  const jumlahEl = document.querySelector(`#jumlah-${id_menu}`);
-  const parent = jumlahEl.closest(".item-row");
-
-  const res = await fetch("/keranjang/update", {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ id_menu, action }),
-  });
-
-  const data = await res.json();
-
-  if (res.ok) {
-    if (data.keranjang) {
-      // cari item terbaru di keranjang dari response
-      const updated = data.keranjang.find(i => i.id_menu === id_menu);
-      if (!updated) {
-        // item sudah dihapus (jumlah 0)
-        parent.remove();
-      } else {
-        jumlahEl.textContent = updated.jumlah;
-      }
-
-      // update ringkasan total item & total harga
-      updateRingkasan(data.keranjang);
-    }
-  } else {
-    alert("❌ Gagal memperbarui jumlah");
-  }
-}
-
-
-  /* =====================================================
-     🔸 Hapus Item dari Keranjang
-  ===================================================== */
-  async function hapusItem(id_menu) {
-    if (!confirm("Hapus item ini dari keranjang?")) return;
-
-    const res = await fetch(`/keranjang/${id_menu}`, { method: "DELETE" });
-    if (res.ok) {
-      document.querySelector(`#jumlah-${id_menu}`).closest(".menu-item").remove();
-      localStorage.removeItem(`keranjang-${id_menu}`);
-      localStorage.setItem("keranjang-last-update", Date.now());
-      updateRingkasan();
-    } else {
-      alert("❌ Gagal menghapus item");
-    }
-  }
-
-  /* =====================================================
-     🔸 Modal Checkout
-  ===================================================== */
-  const modal = document.getElementById("checkoutModal");
-  const btnCheckout = document.getElementById("btnCheckout");
-  const btnCancel = document.getElementById("cancelCheckout");
-  const btnConfirm = document.getElementById("confirmCheckout");
-
-  btnCheckout.addEventListener("click", () => modal.classList.remove("hidden"));
-  btnCancel.addEventListener("click", () => modal.classList.add("hidden"));
-
-  btnConfirm.addEventListener("click", async () => {
-    modal.classList.add("hidden");
-
-    const res = await fetch("/keranjang/checkout", {
-      method: "POST",
+    const jumlahEl = document.querySelector(`#jumlah-${id_menu}`);
+    const parent = jumlahEl.closest(".item-row");
+    const res = await fetch("/keranjang/update", {
+      method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({})
+      body: JSON.stringify({ id_menu, action }),
     });
-
     const data = await res.json();
     if (res.ok) {
-      alert("✅ Pesanan berhasil dibuat!");
-      // Hapus semua item keranjang di localStorage
-      Object.keys(localStorage)
-        .filter(k => k.startsWith("keranjang-"))
-        .forEach(k => localStorage.removeItem(k));
+      if (data.keranjang) {
+        const updated = data.keranjang.find(i => i.id_menu === id_menu);
+        if (!updated) parent.remove();
+        else jumlahEl.textContent = updated.jumlah;
+        updateRingkasan(data.keranjang);
+      }
+    } else alert("❌ Gagal memperbarui jumlah");
+  }
 
-      localStorage.setItem("keranjang-last-update", Date.now());
-      window.location.href = `/pesanan/status/${data.id_meja}`;
-    } else {
-      alert("❌ " + (data.message || "Terjadi kesalahan"));
-    }
-  });
-
-  /* =====================================================
-     🔸 Sinkronisasi antar-tab (storage event)
-  ===================================================== */
-  window.addEventListener("storage", (e) => {
-    if (e.key && e.key.startsWith("keranjang-")) {
+  async function hapusItem(id_menu) {
+    if (!confirm("Hapus item ini?")) return;
+    const res = await fetch(`/keranjang/${id_menu}`, { method: "DELETE" });
+    if (res.ok) {
+      document.querySelector(`[data-id-menu='${id_menu}']`).remove();
       updateRingkasan();
-    }
-  });
+    } else alert("❌ Gagal menghapus item");
+  }
 
-  /* =====================================================
-     🔸 Jalankan Saat Load
-  ===================================================== */
-  document.addEventListener("DOMContentLoaded", () => {
-    updateRingkasan();
+  const modal = document.getElementById("checkoutModal");
+  document.getElementById("btnCheckout").addEventListener("click", () => modal.classList.remove("hidden"));
+  document.getElementById("cancelCheckout").addEventListener("click", () => modal.classList.add("hidden"));
+  document.getElementById("confirmCheckout").addEventListener("click", async () => {
+    modal.classList.add("hidden");
+    const res = await fetch("/keranjang/checkout", { method: "POST", headers: { "Content-Type": "application/json" }});
+    const data = await res.json();
+    if (res.ok) {
+  // ✅ Popup SweetAlert2 modern
+  Swal.fire({
+    title: "Pesanan Berhasil!",
+    text: "Silahkan Melakukan Pembayaran ke Kasir😊",
+    icon: "success",
+    confirmButtonText: "Lihat Status Pesanan",
+    confirmButtonColor: "#f97316", // orange Norin Cafe
+    background: "#fffaf5",
+  }).then(() => {
+    // 🔸 Bersihkan keranjang dan redirect setelah user klik tombol
+    Object.keys(localStorage)
+      .filter(k => k.startsWith("keranjang-"))
+      .forEach(k => localStorage.removeItem(k));
+    localStorage.setItem("keranjang-last-update", Date.now());
+    window.location.href = `/pesanan/status/${data.id_meja}`;
   });
-</script>
+} else {
+  // ❌ Ganti alert error juga biar lebih rapi
+  Swal.fire({
+    title: "Gagal!",
+    text: data.message || "Terjadi kesalahan saat membuat pesanan",
+    icon: "error",
+    confirmButtonColor: "#ef4444",
+  });
+}
+  });
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 </body>
 </html>

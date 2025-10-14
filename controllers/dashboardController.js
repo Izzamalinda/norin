@@ -23,7 +23,13 @@ async function getSummary(req, res) {
     );
     const revenueToday = q2[0].revenue || 0;
 
-    const totalPesanan = await Pesanan.count();
+     const qTotal = await sequelize.query(
+      `SELECT COUNT(*) AS total
+       FROM pesanan
+       WHERE DATE(tanggal_pesan) = :today`,
+      { replacements: { today }, type: QueryTypes.SELECT }
+    );
+    const totalPesanan = qTotal[0].total || 0;
 
     let menuAktif = 0;
     try {
@@ -128,13 +134,14 @@ async function getTopMenus(req, res) {
 
 
 // === Recent Activities (Pesanan Terbaru dengan Pagination) ===
+// === Recent Activities (Pesanan Terbaru dengan Pagination) ===
 async function getRecentActivities(req, res) {
   try {
     const page = parseInt(req.query.page) || 1;   // halaman aktif
     const limit = parseInt(req.query.limit) || 5; // jumlah per halaman
     const offset = (page - 1) * limit;
 
-    // Hitung total pesanan
+    // Hitung total pesanan unik
     const countResult = await sequelize.query(
       `SELECT COUNT(DISTINCT id_pesanan) AS total FROM pesanan`,
       { type: QueryTypes.SELECT }
@@ -142,7 +149,7 @@ async function getRecentActivities(req, res) {
     const totalData = countResult[0].total;
     const totalPages = Math.ceil(totalData / limit);
 
-    // Ambil data per halaman
+    // Ambil data sesuai halaman
     const rows = await sequelize.query(
       `SELECT p.id_pesanan,
               p.tanggal_pesan,
@@ -158,7 +165,7 @@ async function getRecentActivities(req, res) {
       { replacements: { limit, offset }, type: QueryTypes.SELECT }
     );
 
-    const activities = rows.map((r) => ({
+    const activities = rows.map(r => ({
       id_pesanan: r.id_pesanan,
       tanggal: r.tanggal_pesan,
       status: r.status_pesanan,
@@ -169,7 +176,7 @@ async function getRecentActivities(req, res) {
     return res.json({
       success: true,
       data: activities,
-      pagination: { page, totalPages, totalData }
+      pagination: { page, totalPages, totalData },
     });
   } catch (err) {
     console.error("getRecentActivities", err);

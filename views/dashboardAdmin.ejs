@@ -330,7 +330,6 @@
       <section class="chart-container card-hover p-6 rounded-2xl shadow-sm">
         <div class="mb-6">
           <h2 class="section-title">Pesanan Terbaru</h2>
-          <p class="section-subtitle">5 pesanan terakhir</p>
         </div>
 
         <div class="overflow-x-auto custom-scrollbar border border-gray-200 rounded-lg">
@@ -430,26 +429,50 @@
       }
     }
 
-    async function fetchRecentActivities() {
-      const res = await fetch('/admin/api/dashboard/recent-activities?limit=6');
-      const json = await res.json();
-      const tbody = document.getElementById('recentActivities');
-      tbody.innerHTML = '';
-      if (json.success && json.data.length > 0) {
-        json.data.forEach(r => {
-          tbody.innerHTML += `
-            <tr class="table-body-row">
-              <td class="font-medium text-gray-900">#${r.id_pesanan}</td>
-              <td class="text-gray-600">${r.tanggal}</td>
-              <td>${formatStatus(r.status)}</td>
-              <td class="font-semibold text-gray-900">Rp ${Number(r.total_amount).toLocaleString('id-ID')}</td>
-              <td class="text-gray-600">${r.items || '-'}</td>
-            </tr>`;
-        });
-      } else {
-        tbody.innerHTML = '<tr><td colspan="5" class="no-data">Belum ada pesanan.</td></tr>';
-      }
+    async function fetchRecentActivities(page = 1) {
+    const limit = 6;
+    const res = await fetch(`/admin/api/dashboard/recent-activities?page=${page}&limit=${limit}`);
+    const json = await res.json();
+    const tbody = document.getElementById('recentActivities');
+    const pageInfo = document.getElementById('pageInfo');
+    const prevBtn = document.getElementById('prevPage');
+    const nextBtn = document.getElementById('nextPage');
+
+    tbody.innerHTML = '';
+
+    if (json.success && json.data.length > 0) {
+      json.data.forEach(r => {
+        tbody.innerHTML += `
+          <tr class="table-body-row">
+            <td class="font-medium text-gray-900">#${r.id_pesanan}</td>
+            <td class="text-gray-600">${r.tanggal}</td>
+            <td>${formatStatus(r.status)}</td>
+            <td class="font-semibold text-gray-900">Rp ${Number(r.total_amount).toLocaleString('id-ID')}</td>
+            <td class="text-gray-600">${r.items || '-'}</td>
+          </tr>`;
+      });
+
+      // Update pagination state
+      currentPage = json.pagination.page;
+      totalPages = json.pagination.totalPages;
+      pageInfo.innerText = `Halaman ${currentPage} dari ${totalPages}`;
+      prevBtn.disabled = currentPage <= 1;
+      nextBtn.disabled = currentPage >= totalPages;
+    } else {
+      tbody.innerHTML = '<tr><td colspan="5" class="no-data">Belum ada pesanan.</td></tr>';
+      pageInfo.innerText = 'Halaman 1 dari 1';
+      prevBtn.disabled = true;
+      nextBtn.disabled = true;
     }
+  }
+
+  // Event tombol pagination
+  document.getElementById('prevPage').addEventListener('click', () => {
+    if (currentPage > 1) fetchRecentActivities(currentPage - 1);
+  });
+  document.getElementById('nextPage').addEventListener('click', () => {
+    if (currentPage < totalPages) fetchRecentActivities(currentPage + 1);
+  });
 
     document.addEventListener('DOMContentLoaded', () => {
       fetchSummary();

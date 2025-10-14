@@ -27,10 +27,6 @@ module.exports = (sequelize, DataTypes) => {
     id_meja: {
       type: DataTypes.STRING(50),
       allowNull: false
-    },
-    id_keranjang: {
-      type: DataTypes.STRING(50),
-      allowNull: true
     }
   }, {
     sequelize,

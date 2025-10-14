@@ -38,7 +38,7 @@ exports.generateMeja = async (req, res) => {
     }
 
     const qrRelativePath = await generateQrMeja(no_meja, qrDir);
-    const id_meja = 'M' + String(no_meja).padStart(3, '0');
+    const id_meja = 'MJ' + String(no_meja).padStart(3, '0');
 
     await Meja.create({ id_meja, no_meja, qr_code: qrRelativePath });
 
