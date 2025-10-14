@@ -2,24 +2,23 @@ const express = require("express");
 const router = express.Router();
 const menuUserController = require("../controllers/menuUserController");
 
-// ✅ Halaman utama menu (mendukung ?meja=5)
-router.get("/menu", async (req, res) => {
+// ✅ Tangkap query ?meja= dan simpan di session
+router.get("/", async (req, res, next) => {
   try {
-    const no_meja = req.query.meja || null;
-
-    // ambil semua data menu (kita buat method tambahan di controller)
-    const allMenu = await menuUserController.getAllMenuData();
-
-    res.render("user/menuUser", { 
-      title: "Menu Restoran", 
-      menus: allMenu,
-      no_meja // kirim ke EJS agar bisa tampil di halaman
-    });
+    const { meja } = req.query;
+    if (meja) {
+      req.session.no_meja = meja;
+      console.log(`🪑 Meja aktif dari QR: ${meja}`);
+    }
+    next();
   } catch (err) {
-    console.error(err);
-    res.status(500).send("Gagal memuat halaman menu.");
+    console.error("❌ Error session meja:", err);
+    next();
   }
 });
+
+// ✅ Halaman utama menu
+router.get("/menu", menuUserController.getAllMenu);
 
 // ✅ Detail menu
 router.get("/menu/:id", menuUserController.getMenuById);

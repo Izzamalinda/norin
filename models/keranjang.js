@@ -30,6 +30,11 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      total_harga: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0
+      },
       id_pesanan: {
         type: DataTypes.STRING(50),
         allowNull: true, // akan diisi saat checkout

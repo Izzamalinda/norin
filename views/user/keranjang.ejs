@@ -89,54 +89,60 @@
     return "Rp " + Number(num).toLocaleString("id-ID");
   }
 
-  function updateRingkasan() {
-    const items = document.querySelectorAll("[id^='jumlah-']");
-    let totalItem = 0;
-    let totalHarga = 0;
+  function updateRingkasan(keranjangData = null) {
+  let totalItem = 0;
+  let totalHarga = 0;
 
+  if (keranjangData) {
+    totalItem = keranjangData.reduce((sum, i) => sum + i.jumlah, 0);
+    totalHarga = keranjangData.reduce((sum, i) => sum + i.total_harga, 0);
+  } else {
+    const items = document.querySelectorAll("[id^='jumlah-']");
     items.forEach((el) => {
       const jumlah = parseInt(el.textContent) || 0;
       const harga = parseInt(el.dataset.harga) || 0;
       totalItem += jumlah;
       totalHarga += jumlah * harga;
     });
-
-    document.querySelector("#totalItem").textContent = `${totalItem} item`;
-    document.querySelector("#totalHarga").textContent = formatRupiah(totalHarga);
-    document.querySelector("#totalHargaBesar").textContent = formatRupiah(totalHarga);
   }
 
-  /* =====================================================
-     🔸 Ubah Jumlah (+ / −)
-  ===================================================== */
+  document.querySelector("#totalItem").textContent = `${totalItem} item`;
+  document.querySelector("#totalHarga").textContent = formatRupiah(totalHarga);
+  document.querySelector("#totalHargaBesar").textContent = formatRupiah(totalHarga);
+}
+
+
   async function ubahJumlah(id_menu, action) {
-    const jumlahEl = document.querySelector(`#jumlah-${id_menu}`);
-    const harga = parseInt(jumlahEl.dataset.harga);
-    const parent = jumlahEl.closest(".menu-item");
+  const jumlahEl = document.querySelector(`#jumlah-${id_menu}`);
+  const parent = jumlahEl.closest(".item-row");
 
-    const res = await fetch("/keranjang/update", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id_menu, action })
-    });
+  const res = await fetch("/keranjang/update", {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id_menu, action }),
+  });
 
-    const data = await res.json();
+  const data = await res.json();
 
-    if (res.ok) {
-      if (data.removed) {
-        // Hapus item dari DOM
+  if (res.ok) {
+    if (data.keranjang) {
+      // cari item terbaru di keranjang dari response
+      const updated = data.keranjang.find(i => i.id_menu === id_menu);
+      if (!updated) {
+        // item sudah dihapus (jumlah 0)
         parent.remove();
-        localStorage.removeItem(`keranjang-${id_menu}`);
-      } else if (data.jumlah !== undefined) {
-        jumlahEl.textContent = data.jumlah;
-        localStorage.setItem(`keranjang-${id_menu}`, data.jumlah);
+      } else {
+        jumlahEl.textContent = updated.jumlah;
       }
-      localStorage.setItem("keranjang-last-update", Date.now());
-      updateRingkasan();
-    } else {
-      alert("❌ Gagal memperbarui jumlah");
+
+      // update ringkasan total item & total harga
+      updateRingkasan(data.keranjang);
     }
+  } else {
+    alert("❌ Gagal memperbarui jumlah");
   }
+}
+
 
   /* =====================================================
      🔸 Hapus Item dari Keranjang

@@ -1,23 +1,15 @@
 // controllers/pesananController.js
 const { Pesanan, Meja, Keranjang, Menu } = require("../models");
 
-// ✅ ADMIN - Menampilkan semua pesanan (dengan detail menu)
+// ✅ ADMIN - Menampilkan semua pesanan
 exports.getAllPesanan = async (req, res) => {
   try {
     const pesanan = await Pesanan.findAll({
       include: [
-        {
-          model: Meja,
-          attributes: ["id_meja", "no_meja"],
-        },
+        { model: Meja, attributes: ["id_meja", "no_meja"] },
         {
           model: Keranjang,
-          include: [
-            {
-              model: Menu,
-              attributes: ["id_menu", "nama", "harga"], // ✅ gunakan "nama", bukan "nama_menu"
-            },
-          ],
+          include: [{ model: Menu, attributes: ["nama", "harga"] }],
         },
       ],
       order: [["tanggal_pesan", "DESC"]],
@@ -45,6 +37,11 @@ exports.updateStatus = async (req, res) => {
 
     await pesanan.update({ status_pesanan });
 
+    // 🧹 Hapus keranjang terkait jika pesanan selesai
+    if (status_pesanan === "Selesai") {
+      await Keranjang.destroy({ where: { id_pesanan } });
+    }
+
     res.redirect("/admin/daftar-pesanan");
   } catch (err) {
     console.error("❌ Error updateStatus:", err);
@@ -52,7 +49,7 @@ exports.updateStatus = async (req, res) => {
   }
 };
 
-// ✅ PELANGGAN - Melihat daftar/status pesanan berdasarkan meja
+// ✅ USER - Melihat pesanan berdasarkan meja
 exports.getPesananByMeja = async (req, res) => {
   try {
     const { id_meja } = req.params;

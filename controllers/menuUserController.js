@@ -1,4 +1,4 @@
-const { Menu } = require("../models");
+const { Menu, Meja } = require("../models");
 const { Op } = require("sequelize");
 
 // ===============================
@@ -25,7 +25,7 @@ exports.getAllMenu = async (req, res) => {
       where: { status_menu: "available" },
       order: [["nama", "ASC"]],
     });
-    res.render("user/menuUser", { menus, currentMeja: req.session.id_meja || null });
+    res.render("user/menuUser", { menus, no_meja: req.session.id_meja || null, keranjang: req.session.keranjang || [] });
   } catch (error) {
     res.status(500).send("Terjadi kesalahan: " + error.message);
   }
