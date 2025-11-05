@@ -12,7 +12,7 @@ module.exports = (sequelize, DataTypes) => {
   Meja.init({
     id_meja: {
       type: DataTypes.INTEGER,
-      autoIncrement: true,     // ✅ biar otomatis nambah
+      autoIncrement: true,     
       primaryKey: true
     },
     no_meja: {

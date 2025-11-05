@@ -4,7 +4,7 @@ const path = require("path");
 const fs = require("fs");
 
 module.exports = {
-  // GET semua menu
+
   async getAll(req, res) {
     try {
       const menus = await Menu.findAll();
@@ -15,7 +15,6 @@ module.exports = {
     }
   },
 
-  // CREATE menu baru
   async create(req, res) {
     try {
       const { nama, harga, deskripsi, status_menu, kategori } = req.body;
@@ -41,7 +40,6 @@ module.exports = {
     }
   },
 
-  // UPDATE menu
   async update(req, res) {
     try {
       const { id } = req.params;
@@ -67,7 +65,6 @@ module.exports = {
     }
   },
 
-  // DELETE menu
   async delete(req, res) {
     try {
       const { id } = req.params;

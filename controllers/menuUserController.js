@@ -1,7 +1,6 @@
 const { Menu, Meja } = require("../models");
 const { Op } = require("sequelize");
 
-// 🔹 Helper untuk hitung jumlah kategori
 async function getKategoriCount() {
   const makananCount = await Menu.count({ where: { kategori: { [Op.like]: "%Makanan%" } } });
   const minumanCount = await Menu.count({ where: { kategori: { [Op.like]: "%Minuman%" } } });
@@ -9,9 +8,6 @@ async function getKategoriCount() {
   return { makananCount, minumanCount, cemilanCount };
 }
 
-// ===============================
-// 🧩 Halaman utama menu
-// ===============================
 exports.getAllMenu = async (req, res) => {
   try {
     const mejaQuery = req.query.meja;
@@ -23,6 +19,7 @@ exports.getAllMenu = async (req, res) => {
         meja = await Meja.create({ id_meja, no_meja: mejaQuery, qr_code: qr_path });
       }
       req.session.id_meja = meja.id_meja;
+      req.session.no_meja = meja.no_meja;
     }
 
     const menus = await Menu.findAll({
@@ -34,7 +31,7 @@ exports.getAllMenu = async (req, res) => {
 
     res.render("user/menuUser", {
       menus,
-      no_meja: req.session.id_meja || null,
+      no_meja: req.session.no_meja || null,
       keranjang: req.session.keranjang || [],
       makananCount,
       minumanCount,
@@ -47,9 +44,6 @@ exports.getAllMenu = async (req, res) => {
   }
 };
 
-// ===============================
-// 🧩 Filter menu berdasarkan kategori
-// ===============================
 exports.getMenuByCategory = async (req, res) => {
   try {
     const { kategori } = req.params;
@@ -57,8 +51,7 @@ exports.getMenuByCategory = async (req, res) => {
 
     const menus = await Menu.findAll({
       where: {
-        kategori: { [Op.substring]: kategori.charAt(0).toUpperCase() + kategori.slice(1).toLowerCase() }
-, // Sesuai kolom kategori di tabel Menu
+        kategori: { [Op.substring]: kategori.charAt(0).toUpperCase() + kategori.slice(1).toLowerCase() }, 
         status_menu: "available",
       },
       order: [["nama", "ASC"]],
@@ -81,9 +74,6 @@ exports.getMenuByCategory = async (req, res) => {
   }
 };
 
-// ===============================
-// 🧩 Pencarian menu
-// ===============================
 exports.searchMenu = async (req, res) => {
   try {
     const { keyword } = req.query;
@@ -114,9 +104,6 @@ exports.searchMenu = async (req, res) => {
   }
 };
 
-// ===============================
-// 🧩 Detail menu berdasarkan ID
-// ===============================
 exports.getMenuById = async (req, res) => {
   try {
     const { id } = req.params;

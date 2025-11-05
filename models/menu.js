@@ -31,12 +31,12 @@ module.exports = (sequelize, DataTypes) => {
     allowNull: true
   },
   status_menu: {
-    type: DataTypes.STRING(20), // contoh: "available", "unavailable"
+    type: DataTypes.STRING(20), 
     allowNull: false,
     defaultValue: 'available'
   },
   kategori: {
-    type: DataTypes.STRING(50), // contoh: "Makanan", "Minuman", "Cemilan"
+    type: DataTypes.STRING(50), 
     allowNull: false,
     defaultValue: 'Makanan'
   }

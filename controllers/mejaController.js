@@ -1,4 +1,3 @@
-// controllers/mejaController.js
 const path = require('path');
 const fs = require('fs');
 const { Meja, Pesanan } = require('../models');
@@ -7,7 +6,6 @@ const { generateQrMeja } = require('../utils/generateQrMeja');
 const qrDir = path.join(__dirname, '../uploads/qrcode');
 if (!fs.existsSync(qrDir)) fs.mkdirSync(qrDir, { recursive: true });
 
-// 📋 Daftar semua meja
 exports.listMeja = async (req, res) => {
   try {
     const mejaList = await Meja.findAll({ order: [['no_meja', 'ASC']] });
@@ -18,12 +16,10 @@ exports.listMeja = async (req, res) => {
   }
 };
 
-// 🆕 Halaman generate QR
 exports.renderGeneratePage = (req, res) => {
   res.render('generate-meja', { title: 'Generate QR Meja', qr: null, message: null });
 };
 
-// 🧩 Generate QR dan simpan ke DB
 exports.generateMeja = async (req, res) => {
   try {
     const { no_meja } = req.body;
@@ -42,7 +38,6 @@ exports.generateMeja = async (req, res) => {
 
     await Meja.create({ id_meja, no_meja, qr_code: qrRelativePath });
 
-    // Render ulang halaman dengan QR hasil generate (agar sesuai view)
     res.render('generate-meja', {
       title: 'Generate QR Meja',
       qr: qrRelativePath,
@@ -54,7 +49,6 @@ exports.generateMeja = async (req, res) => {
   }
 };
 
-// 🗑️ Hapus meja dan file QR
 exports.deleteMeja = async (req, res) => {
   try {
     const id = req.params.id;
@@ -80,11 +74,10 @@ exports.hasActivePesanan = async (id_meja) => {
   return !!aktif;
 };
 
-// ✅ Pastikan meja ada di database (kalau belum, buat otomatis)
 exports.ensureMejaExists = async (id_meja, no_meja = null) => {
   let meja = await Meja.findByPk(id_meja);
   if (!meja && no_meja) {
-    // Buat baru jika belum ada (opsional, untuk testing)
+
     meja = await Meja.create({
       id_meja,
       no_meja,

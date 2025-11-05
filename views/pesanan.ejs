@@ -4,25 +4,25 @@
   <title><%= title %></title>
   <link rel="stylesheet" href="/css/admin.css">
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/socket.io/socket.io.js"></script> <!-- ✅ Tambah Socket.IO -->
   <style>
-    .stat-card {
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-    .stat-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 16px rgba(0,0,0,0.1);
-    }
-    /* Prevent horizontal scroll */
-    body {
-      overflow-x: hidden;
-      overflow-y: auto;
-    }
-    main {
-      max-width: 100%;
-      overflow-x: hidden;
-    }
-    table {
-      table-layout: fixed;
+    .stat-card { transition: transform 0.2s, box-shadow 0.2s; }
+    .stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 16px rgba(0,0,0,0.1); }
+    body { overflow-x: hidden; overflow-y: auto; }
+    main { max-width: 100%; overflow-x: hidden; }
+    table { table-layout: fixed; }
+    /* 🔴 Badge Notifikasi */
+    #pesananBadge {
+      position: absolute;
+      top: 10px;
+      right: 14px;
+      background-color: #ef4444;
+      color: white;
+      font-size: 0.7rem;
+      font-weight: bold;
+      padding: 2px 6px;
+      border-radius: 9999px;
+      display: none;
     }
   </style>
 </head>
@@ -30,6 +30,20 @@
 
   <!-- Sidebar -->
   <%- include('partials/sidebarAdmin') %>
+
+  <!-- ✅ Badge indikator di sidebar (bisa letakkan di partial juga) -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const pesananLink = document.getElementById('menu-pesanan');
+      if (pesananLink && !document.getElementById('pesananBadge')) {
+        const badge = document.createElement('span');
+        badge.id = 'pesananBadge';
+        badge.textContent = '0';
+        pesananLink.style.position = 'relative';
+        pesananLink.appendChild(badge);
+      }
+    });
+  </script>
 
   <!-- Konten utama -->
   <main class="flex-1 ml-64 p-6">
@@ -45,7 +59,7 @@
         <div class="flex items-center justify-between">
           <div>
             <p class="text-xs font-medium text-gray-600 uppercase tracking-wide">Menunggu Pembayaran</p>
-            <p class="text-3xl font-bold text-gray-800 mt-2">
+            <p id="count-menunggu" class="text-3xl font-bold text-gray-800 mt-2">
               <%= pesanan.filter(p => p.status_pesanan === 'Menunggu Pembayaran').length %>
             </p>
           </div>
@@ -62,7 +76,7 @@
         <div class="flex items-center justify-between">
           <div>
             <p class="text-xs font-medium text-gray-600 uppercase tracking-wide">Diproses</p>
-            <p class="text-3xl font-bold text-gray-800 mt-2">
+            <p id="count-diproses" class="text-3xl font-bold text-gray-800 mt-2">
               <%= pesanan.filter(p => p.status_pesanan === 'Diproses').length %>
             </p>
           </div>
@@ -79,7 +93,7 @@
         <div class="flex items-center justify-between">
           <div>
             <p class="text-xs font-medium text-gray-600 uppercase tracking-wide">Selesai</p>
-            <p class="text-3xl font-bold text-gray-800 mt-2">
+            <p id="count-selesai" class="text-3xl font-bold text-gray-800 mt-2">
               <%= pesanan.filter(p => p.status_pesanan === 'Selesai').length %>
             </p>
           </div>
@@ -98,7 +112,7 @@
         <h2 class="text-xl font-semibold text-gray-800">Daftar Pesanan</h2>
       </div>
 
-      <div class="overflow-x-auto">
+      <div id="pesananTable" class="overflow-x-auto">
         <table class="min-w-full divide-y divide-gray-200">
           <thead class="bg-gray-100">
             <tr>
@@ -111,123 +125,45 @@
               <th class="px-5 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Aksi</th>
             </tr>
           </thead>
-          <tbody class="bg-white divide-y divide-gray-200">
-            <% if (pesanan.length === 0) { %>
-              <tr>
-                <td colspan="7" class="px-5 py-10 text-center text-gray-500">
-                  <svg class="mx-auto h-12 w-12 text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
-                  </svg>
-                  <p class="text-sm font-medium">Tidak ada pesanan</p>
-                </td>
-              </tr>
-            <% } else { %>
-              <% pesanan.forEach((p, index) => { %>
-                <tr class="hover:bg-gray-50 transition-colors">
-                  <td class="px-5 py-3 whitespace-nowrap">
-                    <span class="text-xs font-mono text-gray-900 bg-gray-100 px-2 py-1 rounded"><%= p.id_pesanan %></span>
-                  </td>
-                  <td class="px-5 py-3 whitespace-nowrap text-sm text-gray-700">
-                    <%= new Date(p.tanggal_pesan).toLocaleString('id-ID', { 
-                      day: '2-digit', 
-                      month: 'short', 
-                      hour: '2-digit', 
-                      minute: '2-digit' 
-                    }) %>
-                  </td>
-                  <td class="px-5 py-3 whitespace-nowrap">
-                    <span class="text-sm font-semibold text-gray-900"><%= p.Meja ? p.Meja.no_meja : '-' %></span>
-                  </td>
-
-                  <td class="px-5 py-3">
-                    <% if (p.Keranjangs && p.Keranjangs.length > 0) { %>
-                      <ul class="space-y-1 text-sm">
-                        <% p.Keranjangs.forEach(k => { %>
-                          <li class="text-gray-700">
-                            <span class="font-medium"><%= k.Menu ? k.Menu.nama : '(Menu tidak ditemukan)' %></span>
-                            <span class="text-gray-500">× <%= k.jumlah %></span>
-                          </li>
-                        <% }) %>
-                      </ul>
-                    <% } else { %>
-                      <em class="text-gray-400 text-sm">Tidak ada menu</em>
-                    <% } %>
-                  </td>
-
-                  <td class="px-5 py-3 whitespace-nowrap">
-                    <span class="text-base font-bold text-orange-600">
-                      Rp <%= p.Keranjangs && p.Keranjangs.length > 0 
-                            ? p.Keranjangs.reduce((sum, k) => sum + (k.Menu ? k.Menu.harga * k.jumlah : 0), 0).toLocaleString('id-ID') 
-                            : '0' %>
-                    </span>
-                  </td>
-
-                  <td class="px-5 py-3 whitespace-nowrap">
-                    <% 
-                      let statusClass = '';
-                      if (p.status_pesanan === 'Menunggu Pembayaran') {
-                        statusClass = 'bg-yellow-100 text-yellow-800';
-                      } else if (p.status_pesanan === 'Diproses') {
-                        statusClass = 'bg-blue-100 text-blue-800';
-                      } else if (p.status_pesanan === 'Selesai') {
-                        statusClass = 'bg-green-100 text-green-800';
-                      }
-                    %>
-                    <span class="px-2 py-1 inline-flex text-xs font-semibold rounded <%= statusClass %>">
-                      <%= p.status_pesanan %>
-                    </span>
-                  </td>
-
-                  <td class="px-5 py-3 whitespace-nowrap">
-                    <form action="/admin/daftar-pesanan/<%= p.id_pesanan %>/update" method="POST" class="flex items-center gap-2">
-                      <select name="status_pesanan" class="border border-gray-300 rounded px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500">
-                        <option <%= p.status_pesanan === "Menunggu Pembayaran" ? "selected" : "" %>>Menunggu Pembayaran</option>
-                        <option <%= p.status_pesanan === "Diproses" ? "selected" : "" %>>Diproses</option>
-                        <option <%= p.status_pesanan === "Selesai" ? "selected" : "" %>>Selesai</option>
-                      </select>
-                      <button type="submit" class="bg-orange-500 hover:bg-orange-600 text-white px-3 py-1.5 rounded text-sm font-medium transition-colors">
-                        Update
-                      </button>
-                    </form>
-                  </td>
-                </tr>
-              <% }) %>
-            <% } %>
+          <tbody id="pesananBody" class="bg-white divide-y divide-gray-200">
+            <%- include('partials/pesananRows', { pesanan: pesanan }) %>
           </tbody>
         </table>
       </div>
-
-      <!-- Pagination -->
-      <div class="bg-gray-50 px-5 py-4 border-t border-gray-200">
-        <div class="flex items-center justify-between">
-          <div class="text-sm text-gray-600">
-            Halaman <span class="font-semibold"><%= currentPage %></span> dari <span class="font-semibold"><%= totalPages %></span>
-          </div>
-          
-          <div class="flex gap-2">
-            <% if (currentPage > 1) { %>
-              <a href="?page=<%= currentPage - 1 %>" class="px-4 py-2 bg-white border border-gray-300 rounded hover:bg-gray-100 text-sm font-medium text-gray-700">
-                ← Sebelumnya
-              </a>
-            <% } else { %>
-              <span class="px-4 py-2 bg-gray-100 border border-gray-200 rounded text-sm font-medium text-gray-400 cursor-not-allowed">
-                ← Sebelumnya
-              </span>
-            <% } %>
-
-            <% if (currentPage < totalPages) { %>
-              <a href="?page=<%= currentPage + 1 %>" class="px-4 py-2 bg-white border border-gray-300 rounded hover:bg-gray-100 text-sm font-medium text-gray-700">
-                Berikutnya →
-              </a>
-            <% } else { %>
-              <span class="px-4 py-2 bg-gray-100 border border-gray-200 rounded text-sm font-medium text-gray-400 cursor-not-allowed">
-                Berikutnya →
-              </span>
-            <% } %>
-          </div>
-        </div>
-      </div>
     </div>
   </main>
+
+  <!-- ✅ Socket.IO untuk Realtime Update -->
+  <script>
+    const socket = io();
+
+    // Saat pesanan baru masuk dari user
+    socket.on("pesananBaru", (data) => {
+      console.log("🟢 Pesanan baru:", data);
+      // Tampilkan badge merah di sidebar
+      const badge = document.getElementById("pesananBadge");
+      if (badge) {
+        badge.style.display = "inline-block";
+        badge.textContent = parseInt(badge.textContent || 0) + 1;
+      }
+
+      // Ambil ulang tabel tanpa reload penuh
+      fetch(window.location.href)
+        .then((res) => res.text())
+        .then((html) => {
+          const doc = new DOMParser().parseFromString(html, "text/html");
+          const newTable = doc.querySelector("#pesananBody");
+          document.querySelector("#pesananBody").innerHTML = newTable.innerHTML;
+
+          // Update juga jumlah status di card atas
+          document.getElementById("count-menunggu").textContent =
+            doc.querySelector("#count-menunggu").textContent;
+          document.getElementById("count-diproses").textContent =
+            doc.querySelector("#count-diproses").textContent;
+          document.getElementById("count-selesai").textContent =
+            doc.querySelector("#count-selesai").textContent;
+        });
+    });
+  </script>
 </body>
 </html>

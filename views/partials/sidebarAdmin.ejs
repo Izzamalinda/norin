@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title><%= title %></title>
+  <script src="/socket.io/socket.io.js?v=1"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
   <style>
@@ -88,22 +89,35 @@
       </div>
 
       <!-- Menu Navigasi -->
-      <nav class="flex flex-col space-y-3">
+      <nav class="flex flex-col space-y-3 relative">
+        <!-- Dashboard -->
         <a href="/admin" id="menu-dashboard"
           class="menu-item bg-white/10 text-white font-semibold px-4 py-3 rounded-xl flex items-center space-x-3 hover:bg-gradient-to-r hover:from-orange-500 hover:to-red-600">
           <i class="fas fa-chart-pie text-lg"></i>
           <span>Dashboard</span>
         </a>
+
+        <!-- Kelola Menu -->
         <a href="/admin/kelola-menu" id="menu-kelola"
           class="menu-item bg-white/10 text-white font-semibold px-4 py-3 rounded-xl flex items-center space-x-3 hover:bg-gradient-to-r hover:from-orange-500 hover:to-red-600">
           <i class="fas fa-utensils text-lg"></i>
           <span>Kelola Menu</span>
         </a>
+
+        <!-- Pesanan (dengan badge) -->
         <a href="/admin/daftar-pesanan" id="menu-pesanan"
-          class="menu-item bg-white/10 text-white font-semibold px-4 py-3 rounded-xl flex items-center space-x-3 hover:bg-gradient-to-r hover:from-orange-500 hover:to-red-600">
+          class="menu-item relative bg-white/10 text-white font-semibold px-4 py-3 rounded-xl flex items-center space-x-3 hover:bg-gradient-to-r hover:from-orange-500 hover:to-red-600">
           <i class="fas fa-shopping-cart text-lg"></i>
           <span>Pesanan</span>
+
+          <!-- 🔴 Badge Notifikasi Pesanan Baru -->
+          <span id="pesananBadge" 
+            class="hidden absolute -top-1 -right-2 bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full shadow-md animate-pulse">
+            0
+          </span>
         </a>
+
+        <!-- Meja -->
         <a href="/meja/list" id="menu-meja"
           class="menu-item bg-white/10 text-white font-semibold px-4 py-3 rounded-xl flex items-center space-x-3 hover:bg-gradient-to-r hover:from-orange-500 hover:to-red-600">
           <i class="fas fa-qrcode text-lg"></i>
@@ -128,6 +142,9 @@
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {
+    // =======================
+    // 🔶 Highlight menu aktif
+    // =======================
     const menus = {
       dashboard: document.getElementById('menu-dashboard'),
       kelola: document.getElementById('menu-kelola'),
@@ -135,25 +152,67 @@
       meja: document.getElementById('menu-meja')
     };
 
-    // Reset semua ke default
     Object.values(menus).forEach(menu => {
       menu.className = 'menu-item bg-white/10 text-white font-semibold px-4 py-3 rounded-xl flex items-center space-x-3 hover:bg-gradient-to-r hover:from-orange-500 hover:to-red-600';
     });
 
-    // Tentukan menu aktif berdasarkan path
     const path = window.location.pathname;
-
     if (path === '/admin' || path === '/admin/' || path.startsWith('/admin/api') || path.startsWith('/admin/dashboard')) {
-      menus.dashboard.className = 'menu-item bg-gradient-to-r from-orange-500 to-red-600 text-white font-semibold px-4 py-3 rounded-xl flex items-center space-x-3 shadow-lg';
+      menus.dashboard.classList.add('bg-gradient-to-r', 'from-orange-500', 'to-red-600', 'shadow-lg');
     } else if (path.startsWith('/admin/kelola-menu')) {
-      menus.kelola.className = 'menu-item bg-gradient-to-r from-orange-500 to-red-600 text-white font-semibold px-4 py-3 rounded-xl flex items-center space-x-3 shadow-lg';
+      menus.kelola.classList.add('bg-gradient-to-r', 'from-orange-500', 'to-red-600', 'shadow-lg');
     } else if (path.startsWith('/admin/daftar-pesanan')) {
-      menus.pesanan.className = 'menu-item bg-gradient-to-r from-orange-500 to-red-600 text-white font-semibold px-4 py-3 rounded-xl flex items-center space-x-3 shadow-lg';
+      menus.pesanan.classList.add('bg-gradient-to-r', 'from-orange-500', 'to-red-600', 'shadow-lg');
     } else if (path.startsWith('/meja')) {
-      menus.meja.className = 'menu-item bg-gradient-to-r from-orange-500 to-red-600 text-white font-semibold px-4 py-3 rounded-xl flex items-center space-x-3 shadow-lg';
+      menus.meja.classList.add('bg-gradient-to-r', 'from-orange-500', 'to-red-600', 'shadow-lg');
+    }
+
+    // =====================================
+    // 🔔 Socket.IO untuk notifikasi pesanan baru (namespace: /admin)
+    // =====================================
+    const socket = io("/admin", {
+      transports: ["websocket"],
+    });
+
+    const badge = document.getElementById('pesananBadge');
+    let pesananCount = 0;
+
+    // 🔍 Log koneksi
+    socket.on('connect', () => {
+      console.log("✅ Admin connected ke /admin namespace:", socket.id);
+      socket.emit("test"); // kirim test ke server
+    });
+
+    socket.on('connect_error', (err) => {
+      console.error("❌ Gagal konek ke Socket.IO /admin:", err.message);
+    });
+
+    socket.on('disconnect', () => {
+      console.warn("⚠️ Admin terputus dari Socket.IO server");
+    });
+
+    // 🔥 Event pesanan baru (realtime)
+    socket.on('pesananBaru', (data) => {
+      console.log("🔥 Event pesananBaru diterima di admin:", data);
+      pesananCount++;
+      badge.textContent = pesananCount;
+      badge.classList.remove('hidden');
+      badge.classList.add('animate-pulse');
+      showToast(`Pesanan baru dari Meja ${data.no_meja || '???'}`);
+    });
+
+    // ✅ Mini toast notifikasi
+    function showToast(message) {
+      const toast = document.createElement('div');
+      toast.textContent = message;
+      toast.className = "fixed bottom-5 right-5 bg-orange-500 text-white px-4 py-2 rounded-lg shadow-lg text-sm animate-bounce";
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 3500);
     }
   });
 </script>
+
+
 
     
 </body>

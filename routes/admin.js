@@ -13,12 +13,11 @@ function checkAuth(req, res, next) {
   next();
 }
 
-// Dashboard Page
 router.get("/dashboard", checkAuth, async (req, res) => {
   try {
     res.render("dashboardAdmin", { 
       user: req.session.user,
-      title: "Dashboard Admin" // ✅ Fix title biar ga error lagi
+      title: "Dashboard Admin" 
     });
   } catch (err) {
     console.error(err);
@@ -26,12 +25,10 @@ router.get("/dashboard", checkAuth, async (req, res) => {
   }
 });
 
-// Redirect /admin -> /admin/dashboard
 router.get("/", checkAuth, (req, res) => {
   res.redirect("/admin/dashboard");
 });
 
-// Kelola menu (CRUD)
 router.get("/kelola-menu", checkAuth, menuController.getAll);
 router.post("/kelola-menu", upload.single("foto"), menuController.create);
 router.post("/kelola-menu/:id/update", upload.single("foto"), menuController.update);
@@ -39,7 +36,6 @@ router.post("/kelola-menu/:id/delete", menuController.delete);
 router.get("/daftar-pesanan", checkAuth, pesananController.getAllPesanan);
 router.post("/daftar-pesanan/:id_pesanan/update", checkAuth, pesananController.updateStatus);
 
-// API Dashboard JSON (opsional)
 router.get("/api/dashboard/summary", checkAuth, dashboardController.getSummary);
 router.get("/api/dashboard/sales", checkAuth, dashboardController.getSalesAnalytics);
 router.get("/api/dashboard/top-menus", checkAuth, dashboardController.getTopMenus);

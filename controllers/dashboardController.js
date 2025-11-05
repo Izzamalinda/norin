@@ -2,12 +2,10 @@ const { QueryTypes } = require("sequelize");
 const { sequelize, Menu, Pesanan, Keranjang, User } = require("../models");
 const moment = require("moment");
 
-// === Render Dashboard ===
 function renderDashboard(req, res) {
   res.render("dashboardAdmin", { title: "Dashboard" });
 }
 
-// === Summary (Card Atas Dashboard) ===
 async function getSummary(req, res) {
   try {
     const today = moment().format("YYYY-MM-DD");
@@ -58,7 +56,6 @@ async function getSummary(req, res) {
   }
 }
 
-// === Sales Analytics (Penjualan 7 Hari) ===
 async function getSalesAnalytics(req, res) {
   try {
     const range = parseInt(req.query.range) || 7;
@@ -96,7 +93,6 @@ async function getSalesAnalytics(req, res) {
   }
 }
 
-// === Top Menus (Menu Terlaris) ===
 async function getTopMenus(req, res) {
   try {
     const days = parseInt(req.query.days) || 30;
@@ -132,16 +128,12 @@ async function getTopMenus(req, res) {
   }
 }
 
-
-// === Recent Activities (Pesanan Terbaru dengan Pagination) ===
-// === Recent Activities (Pesanan Terbaru dengan Pagination) ===
 async function getRecentActivities(req, res) {
   try {
-    const page = parseInt(req.query.page) || 1;   // halaman aktif
-    const limit = parseInt(req.query.limit) || 5; // jumlah per halaman
+    const page = parseInt(req.query.page) || 1;   
+    const limit = parseInt(req.query.limit) || 5; 
     const offset = (page - 1) * limit;
 
-    // Hitung total pesanan unik
     const countResult = await sequelize.query(
       `SELECT COUNT(DISTINCT id_pesanan) AS total FROM pesanan`,
       { type: QueryTypes.SELECT }
@@ -149,7 +141,6 @@ async function getRecentActivities(req, res) {
     const totalData = countResult[0].total;
     const totalPages = Math.ceil(totalData / limit);
 
-    // Ambil data sesuai halaman
     const rows = await sequelize.query(
       `SELECT p.id_pesanan,
               p.tanggal_pesan,
@@ -184,7 +175,6 @@ async function getRecentActivities(req, res) {
   }
 }
 
-// === Quick Action: Tambah Menu ===
 async function createMenuQuick(req, res) {
   try {
     const { nama, harga, kategori, deskripsi } = req.body;
@@ -209,7 +199,6 @@ async function createMenuQuick(req, res) {
   }
 }
 
-// ✅ Ekspor semua fungsi
 module.exports = {
   renderDashboard,
   getSummary,

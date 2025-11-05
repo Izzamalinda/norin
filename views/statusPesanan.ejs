@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <title><%= title %></title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/socket.io/socket.io.js"></script> <!-- ✅ Socket.IO untuk realtime -->
   <style>
-    /* Custom utility untuk teks yang lebih tebal */
     .text-shadow-sm {
       text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
     }
@@ -22,89 +22,115 @@
   
   <hr class="w-full max-w-2xl border-t-2 border-orange-200 mb-8" />
 
-  <% if (pesanan.length === 0) { %>
-    <div class="bg-white shadow-xl p-8 rounded-xl text-center text-gray-600 border-t-4 border-orange-500 max-w-md">
-      <svg class="w-12 h-12 mx-auto text-orange-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-      <p class="text-xl font-semibold mb-1">Tidak Ada Pesanan</p>
-      <p>Meja ini belum memiliki riwayat pesanan aktif. Silakan mulai memesan!</p>
-    </div>
-  <% } else { %>
-    <% pesanan.forEach(p => { %>
-      <div class="bg-white shadow-2xl hover:shadow-orange-300 transition-shadow duration-300 rounded-2xl w-full max-w-2xl mb-8 overflow-hidden border-b-4 
-        <% if (p.status_pesanan === "Menunggu Pembayaran") { %>
-          border-yellow-500
-        <% } else if (p.status_pesanan === "Diproses") { %>
-          border-blue-500
-        <% } else if (p.status_pesanan === "Selesai") { %>
-          border-green-500
-        <% } else { %>
-          border-gray-300
-        <% } %>
-      ">
-        
-        <div class="px-6 py-4 bg-orange-100/70 border-b border-orange-200">
-          <h2 class="text-xl font-bold text-orange-800 flex justify-between items-center">
-            <span>Pesanan ID: <%= p.id_pesanan %></span>
-            <span class="text-sm font-medium text-orange-600">
-              <%= new Date(p.tanggal_pesan).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) %>
-            </span>
-          </h2>
-          <p class="text-xs text-orange-500 mt-0.5">
-            Tanggal: <%= new Date(p.tanggal_pesan).toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) %>
-          </p>
-        </div>
-
-        <div class="p-6">
-          <h3 class="font-bold text-lg text-gray-700 mb-3 border-b pb-1">Rincian Menu:</h3>
-          <ul class="space-y-2">
-            <% p.Keranjangs.forEach(k => { %>
-              <li class="flex justify-between items-center text-gray-800 border-l-4 border-orange-400 pl-3 py-1 bg-gray-50 rounded-md">
-                <span class="font-medium">
-                  <%= k.Menu.nama %> 
-                  <span class="text-sm text-orange-600 font-semibold">(<%= k.jumlah %>x)</span>
-                </span>
-                <span class="font-bold text-md text-orange-700">
-                  Rp <%= (k.Menu.harga * k.jumlah).toLocaleString('id-ID') %>
-                </span>
-              </li>
-            <% }) %>
-          </ul>
-
-          <div class="mt-5 pt-3 border-t border-orange-200">
-            <div class="flex justify-between items-center font-extrabold text-xl text-orange-800">
-              <span>TOTAL PESANAN:</span>
-              <span>
-                Rp 
-                <%= p.Keranjangs.reduce((sum, k) => sum + (k.Menu.harga * k.jumlah), 0).toLocaleString('id-ID') %>
+  <div id="pesananContainer">
+    <% if (pesanan.length === 0) { %>
+      <div class="bg-white shadow-xl p-8 rounded-xl text-center text-gray-600 border-t-4 border-orange-500 max-w-md">
+        <svg class="w-12 h-12 mx-auto text-orange-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <p class="text-xl font-semibold mb-1">Tidak Ada Pesanan</p>
+        <p>Meja ini belum memiliki riwayat pesanan aktif. Silakan mulai memesan!</p>
+      </div>
+    <% } else { %>
+      <% pesanan.forEach(p => { %>
+        <div class="bg-white shadow-2xl hover:shadow-orange-300 transition-shadow duration-300 rounded-2xl w-full max-w-2xl mb-8 overflow-hidden border-b-4 
+          <% if (p.status_pesanan === "Menunggu Pembayaran") { %>
+            border-yellow-500
+          <% } else if (p.status_pesanan === "Diproses") { %>
+            border-blue-500
+          <% } else if (p.status_pesanan === "Selesai") { %>
+            border-green-500
+          <% } else { %>
+            border-gray-300
+          <% } %>
+        ">
+          <div class="px-6 py-4 bg-orange-100/70 border-b border-orange-200">
+            <h2 class="text-xl font-bold text-orange-800 flex justify-between items-center">
+              <span>Pesanan ID: <%= p.id_pesanan %></span>
+              <span class="text-sm font-medium text-orange-600">
+                <%= new Date(p.tanggal_pesan).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) %>
               </span>
+            </h2>
+            <p class="text-xs text-orange-500 mt-0.5">
+              Tanggal: <%= new Date(p.tanggal_pesan).toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) %>
+            </p>
+          </div>
+
+          <div class="p-6">
+            <h3 class="font-bold text-lg text-gray-700 mb-3 border-b pb-1">Rincian Menu:</h3>
+            <ul class="space-y-2">
+              <% p.Keranjangs.forEach(k => { %>
+                <li class="flex justify-between items-center text-gray-800 border-l-4 border-orange-400 pl-3 py-1 bg-gray-50 rounded-md">
+                  <span class="font-medium">
+                    <%= k.Menu.nama %> 
+                    <span class="text-sm text-orange-600 font-semibold">(<%= k.jumlah %>x)</span>
+                  </span>
+                  <span class="font-bold text-md text-orange-700">
+                    Rp <%= (k.Menu.harga * k.jumlah).toLocaleString('id-ID') %>
+                  </span>
+                </li>
+              <% }) %>
+            </ul>
+
+            <div class="mt-5 pt-3 border-t border-orange-200">
+              <div class="flex justify-between items-center font-extrabold text-xl text-orange-800">
+                <span>TOTAL PESANAN:</span>
+                <span>
+                  Rp 
+                  <%= p.Keranjangs.reduce((sum, k) => sum + (k.Menu.harga * k.jumlah), 0).toLocaleString('id-ID') %>
+                </span>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div class="px-6 py-3 border-t bg-orange-50 flex justify-between items-center">
-          <span class="font-semibold text-gray-700">Status Saat Ini:</span>
-          <% if (p.status_pesanan === "Menunggu Pembayaran") { %>
-            <span class="text-sm font-extrabold px-3 py-1 rounded-full bg-yellow-100 text-yellow-700 shadow-md">
-              <i class="fas fa-clock mr-1"></i> <%= p.status_pesanan %>
-            </span>
-          <% } else if (p.status_pesanan === "Diproses") { %>
-            <span class="text-sm font-extrabold px-3 py-1 rounded-full bg-blue-100 text-blue-700 shadow-md">
-              <i class="fas fa-utensils mr-1"></i> <%= p.status_pesanan %>
-            </span>
-          <% } else if (p.status_pesanan === "Selesai") { %>
-            <span class="text-sm font-extrabold px-3 py-1 rounded-full bg-green-100 text-green-700 shadow-md">
-              <i class="fas fa-check-circle mr-1"></i> <%= p.status_pesanan %>
-            </span>
-          <% } else { %>
-            <span class="text-sm font-extrabold px-3 py-1 rounded-full bg-gray-100 text-gray-600">
-              <%= p.status_pesanan %>
-            </span>
-          <% } %>
+          <div class="px-6 py-3 border-t bg-orange-50 flex justify-between items-center">
+            <span class="font-semibold text-gray-700">Status Saat Ini:</span>
+            <% if (p.status_pesanan === "Menunggu Pembayaran") { %>
+              <span class="text-sm font-extrabold px-3 py-1 rounded-full bg-yellow-100 text-yellow-700 shadow-md">
+                <i class="fas fa-clock mr-1"></i> <%= p.status_pesanan %>
+              </span>
+            <% } else if (p.status_pesanan === "Diproses") { %>
+              <span class="text-sm font-extrabold px-3 py-1 rounded-full bg-blue-100 text-blue-700 shadow-md">
+                <i class="fas fa-utensils mr-1"></i> <%= p.status_pesanan %>
+              </span>
+            <% } else if (p.status_pesanan === "Selesai") { %>
+              <span class="text-sm font-extrabold px-3 py-1 rounded-full bg-green-100 text-green-700 shadow-md">
+                <i class="fas fa-check-circle mr-1"></i> <%= p.status_pesanan %>
+              </span>
+            <% } else { %>
+              <span class="text-sm font-extrabold px-3 py-1 rounded-full bg-gray-100 text-gray-600">
+                <%= p.status_pesanan %>
+              </span>
+            <% } %>
+          </div>
         </div>
-      </div>
-    <% }) %>
-  <% } %>
-  
-  <script src="https://kit.fontawesome.com/your-fontawesome-kit.js" crossorigin="anonymous"></script> 
-  </body>
+      <% }) %>
+    <% } %>
+  </div>
+
+  <script src="https://kit.fontawesome.com/your-fontawesome-kit.js" crossorigin="anonymous"></script>
+
+  <!-- ✅ Socket.IO Realtime Update -->
+  <script>
+    const socket = io();
+    const idMejaAktif = "<%= pesanan.length > 0 ? pesanan[0].id_meja : '' %>";
+
+    socket.on("statusPesananUpdate", (data) => {
+      console.log("📡 Update status diterima:", data);
+      if (data.id_meja === idMejaAktif) {
+        // reload konten pesananContainer tanpa refresh penuh
+        fetch(window.location.href)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const newBody = parser.parseFromString(html, "text/html");
+            const newContent = newBody.querySelector("#pesananContainer").innerHTML;
+            document.querySelector("#pesananContainer").innerHTML = newContent;
+          });
+      }
+    });
+  </script>
+
+</body>
 </html>

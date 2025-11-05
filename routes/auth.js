@@ -1,14 +1,13 @@
 const express = require("express");
 const router = express.Router();
-const bcrypt = require("bcrypt");       // Untuk hash jawaban & password
+const bcrypt = require("bcrypt");       
 const { User } = require("../models");
 
 router.get("/loginAdmin", (req, res) => {
-  console.log("✅ /loginAdmin kepanggil"); // debug
+  console.log("✅ /loginAdmin kepanggil"); 
   res.render("loginAdmin", { title: "Norin Cafe", error: null });
 });
 
-// ==================== LOGIN ====================
 router.post("/loginAdmin", async (req, res) => {
   const { username, password, remember } = req.body;
 
@@ -22,7 +21,6 @@ router.post("/loginAdmin", async (req, res) => {
 
     let passwordMatch = false;
 
-    // cek apakah password di DB tampak seperti hash bcrypt
     if (storedPassword.startsWith("$2b$") || storedPassword.startsWith("$2a$")) {
       passwordMatch = await bcrypt.compare(password, storedPassword);
     } else {
@@ -33,7 +31,6 @@ router.post("/loginAdmin", async (req, res) => {
       return res.render("loginAdmin", { title: "Norin Cafe", error: "Password salah!" });
     }
 
-    // Set session
     req.session.user = { id: user.id, username: user.username };
     if (remember === "yes") {
       req.session.cookie.maxAge = 1000 * 60 * 60 * 24 * 7; // 7 hari
@@ -48,12 +45,10 @@ router.post("/loginAdmin", async (req, res) => {
   }
 });
 
-// 👉 Render halaman lupa password
 router.get("/forgotpasswordAdmin", (req, res) => {
   res.render("forgotpasswordAdmin");
 });
 
-// 👉 Ambil pertanyaan keamanan berdasarkan username
 router.get("/getSecurityQuestion", async (req, res) => {
   const { username } = req.query;
   if (!username) return res.status(400).json({ error: "Username wajib diisi!" });
@@ -69,10 +64,9 @@ router.get("/getSecurityQuestion", async (req, res) => {
   }
 });
 
-// 👉 Verifikasi jawaban + reset password
 router.post("/forgotpasswordAdmin", async (req, res) => {
-  console.log("🔥 Route /forgotpasswordAdmin kepanggil");   // debug
-  console.log("📩 req.body:", req.body);                   // debug
+  console.log("🔥 Route /forgotpasswordAdmin kepanggil");   
+  console.log("📩 req.body:", req.body);                   
   
   const { username, answer, newPassword } = req.body;
 
@@ -84,11 +78,9 @@ router.post("/forgotpasswordAdmin", async (req, res) => {
     const user = await User.findOne({ where: { username } });
     if (!user) return res.status(404).json({ error: "User tidak ditemukan!" });
 
-    // 🔑 cek jawaban keamanan (karena masih plaintext di DB)
     const isMatch = answer.trim().toLowerCase() === user.security_answer.trim().toLowerCase();
     if (!isMatch) return res.status(400).json({ error: "Jawaban keamanan salah!" });
 
-    // 🔑 update password (sekarang juga plaintext biar konsisten dengan DB kamu)
     user.password = newPassword;  
     await user.save();
 
@@ -99,17 +91,14 @@ router.post("/forgotpasswordAdmin", async (req, res) => {
   }
 });
 
-
-
-// ==================== LOGOUT ====================
 router.get("/logout", (req, res) => {
   req.session.destroy((err) => {
     if (err) {
       console.error("Logout error:", err);
       return res.status(500).send("Gagal logout!");
     }
-    res.clearCookie("connect.sid"); // hapus cookie session
-    return res.redirect("/loginAdmin"); // arahkan ke login lagi
+    res.clearCookie("connect.sid"); 
+    return res.redirect("/loginAdmin"); 
   });
 });
 

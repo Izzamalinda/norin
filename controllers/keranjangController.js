@@ -1,16 +1,13 @@
-// controllers/keranjangController.js
 const { Menu, Pesanan, Keranjang } = require("../models");
 const { Op } = require("sequelize");
 const { ensureMejaExists, hasActivePesanan } = require("./mejaController");
 
-// 🧺 Tambah ke keranjang (disimpan di session)
 exports.addToKeranjang = async (req, res) => {
   try {
     const { id_menu } = req.body;
     const menu = await Menu.findByPk(id_menu);
     if (!menu) return res.status(404).json({ message: "Menu tidak ditemukan" });
 
-    // Pastikan ada session keranjang
     if (!req.session.keranjang) req.session.keranjang = [];
 
     const existing = req.session.keranjang.find(i => i.id_menu === id_menu);
@@ -34,7 +31,6 @@ exports.addToKeranjang = async (req, res) => {
   }
 };
 
-// 🔁 Update jumlah item di keranjang session
 exports.updateJumlah = async (req, res) => {
   try {
     const { id_menu, action } = req.body;
@@ -61,7 +57,6 @@ exports.updateJumlah = async (req, res) => {
   }
 };
 
-// ❌ Hapus item dari keranjang session
 exports.deleteItem = async (req, res) => {
   const { id_menu } = req.params;
   if (!req.session.keranjang) return res.json({ success: false });
@@ -70,7 +65,6 @@ exports.deleteItem = async (req, res) => {
   res.json({ success: true });
 };
 
-// ✅ Checkout → simpan ke database
 exports.checkout = async (req, res) => {
   try {
     const id_meja = req.session.id_meja;
@@ -102,7 +96,7 @@ const id_pesanan = 'PSN' + String(lastNumber + 1).padStart(4, '0');
 
     await Pesanan.create({
   id_pesanan,
-  tanggal_pesan: new Date(new Date().getTime() + 7 * 60 * 60 * 1000), // ✅ +7 jam
+  tanggal_pesan: new Date(new Date().getTime() + 7 * 60 * 60 * 1000), // 
   status_pesanan: "Menunggu Pembayaran",
   total_harga: totalHarga,
   id_meja,
@@ -132,7 +126,6 @@ const id_keranjang = 'KRJ' + String(lastCartNumber + 1).padStart(4, '0');
       });
     }
 
-    // Kosongkan keranjang setelah checkout
     req.session.keranjang = [];
 
     res.json({ success: true, id_meja });
