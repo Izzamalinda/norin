@@ -134,3 +134,19 @@ const id_keranjang = 'KRJ' + String(lastCartNumber + 1).padStart(4, '0');
     res.status(500).json({ error: err.message });
   }
 };
+
+exports.updateCatatan = async (req, res) => {
+  try {
+    const { id_menu, catatan } = req.body;
+    // Simpan array catatan sebagai JSON string di database
+    await Keranjang.update(
+      { catatan: JSON.stringify(catatan) },
+      { where: { id_menu } }
+    );
+
+    res.json({ success: true, message: "Catatan diperbarui" });
+  } catch (error) {
+    console.error("Gagal update catatan:", error);
+    res.status(500).json({ success: false, message: "Terjadi kesalahan server" });
+  }
+};

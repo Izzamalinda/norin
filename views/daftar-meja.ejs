@@ -256,7 +256,9 @@
               <!-- Header Card -->
               <div class="flex items-center justify-between mb-5">
                 <div class="meja-badge text-white px-4 py-2 rounded-lg text-sm font-semibold">
-                  <i class="fas fa-chair mr-2"></i>Meja <%= meja.no_meja %>
+                  <i class="fas fa-chair mr-2"></i>
+                  <%= meja.no_meja === 0 ? "Takeaway" : "Meja " + meja.no_meja %>
+
                 </div>
                 <span class="text-xs font-medium text-gray-500">QR Code</span>
               </div>
@@ -297,6 +299,19 @@
     </div>
 
   </main>
+
+<!-- <% mejaList.forEach(m => { %>
+  <div class="glass-effect p-4 rounded-xl text-center shadow">
+    <h3 class="font-bold text-lg text-orange-600">
+      <% if (parseInt(m.no_meja) === 0) { %>
+        Takeaway
+      <% } else { %>
+        Meja <%= m.no_meja %>
+      <% } %>
+    </h3>
+  </div>
+<% }) %> -->
+
 
 </body>
 </html>

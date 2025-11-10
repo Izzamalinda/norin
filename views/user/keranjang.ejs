@@ -46,6 +46,19 @@
     <section class="w-full lg:w-2/3">
       <h2 class="text-2xl font-bold mb-6 gradient-text text-center lg:text-left">Keranjang Belanja</h2>
 
+      <!-- 🧾 Input Nama Pelanggan -->
+<div class="flex items-center justify-between mb-4">
+  <label for="namaPelanggan" class="text-sm font-semibold text-gray-700">
+    Nama Pemesan:
+  </label>
+  <input type="text"
+         id="namaPelanggan"
+         class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-orange-400 focus:outline-none w-1/2"
+         placeholder="Masukkan nama pelanggan..."
+         oninput="updateNamaPelanggan()">
+</div>
+
+
       <% if (keranjang.length > 0) { %>
         <% keranjang.forEach(item => { %>
           <div class="flex flex-col sm:flex-row sm:items-center justify-between glass-effect rounded-2xl shadow-md p-4 mb-4 item-row" 
@@ -68,6 +81,34 @@
                 <i class="fas fa-trash"></i>
               </button>
             </div>
+
+                        <!-- 📝 Tombol tambah catatan -->
+            <div class="flex justify-end sm:justify-center mt-2">
+              <button type="button"
+                      class="text-orange-600 text-xs font-medium hover:underline"
+                      onclick="tambahCatatan('<%= item.id_menu %>')">
+                + Tambah Catatan
+              </button>
+            </div>
+
+            <!-- 📋 Daftar catatan -->
+            <div id="catatan-list-<%= item.id_menu %>" class="space-y-2 mt-2">
+              <% if (item.catatan && Array.isArray(item.catatan)) { %>
+                <% item.catatan.forEach((note, index) => { %>
+                  <div class="flex items-start gap-2">
+                    <textarea class="flex-grow border border-gray-300 rounded-xl p-2 text-sm focus:ring-2 focus:ring-orange-400 focus:outline-none"
+                              rows="2"
+                              onblur="simpanCatatan('<%= item.id_menu %>', <%= index %>)"><%= note %></textarea>
+                    <button type="button" class="text-red-500 hover:text-red-700 mt-1"
+                            onclick="hapusCatatan('<%= item.id_menu %>', <%= index %>)">
+                      <i class="fas fa-times"></i>
+                    </button>
+                  </div>
+                <% }) %>
+              <% } %>
+            </div>
+
+
           </div>
         <% }) %>
       <% } else { %>
@@ -169,6 +210,103 @@
       updateRingkasan();
     } else alert("❌ Gagal menghapus item");
   }
+
+function tambahCatatan(id_menu) {
+  const list = document.getElementById(`catatan-list-${id_menu}`);
+  const jumlahItem = parseInt(document.querySelector(`#jumlah-${id_menu}`).textContent) || 0;
+  const existingNotes = list.querySelectorAll("textarea").length;
+
+  // 🚫 Batasi jumlah catatan tidak boleh lebih dari jumlah item
+  if (existingNotes >= jumlahItem) {
+    Swal.fire({
+      icon: "warning",
+      title: "Batas Tercapai",
+      text: `Kamu hanya bisa menambahkan ${jumlahItem} catatan untuk item ini.`,
+      confirmButtonColor: "#f97316",
+    });
+    return;
+  }
+
+  const index = existingNotes;
+  const div = document.createElement("div");
+  div.className = "flex items-start gap-2";
+  div.innerHTML = `
+    <textarea class="flex-grow border border-gray-300 rounded-xl p-2 text-sm focus:ring-2 focus:ring-orange-400 focus:outline-none"
+              rows="2"
+              placeholder="Tulis catatan di sini..."
+              onblur="simpanCatatan('${id_menu}', ${index})"></textarea>
+    <button type="button" class="text-red-500 hover:text-red-700 mt-1"
+            onclick="hapusCatatan('${id_menu}', ${index})">
+      <i class="fas fa-times"></i>
+    </button>
+  `;
+  list.appendChild(div);
+}
+
+
+// 💾 Simpan atau update catatan ke server
+async function simpanCatatan(id_menu, index) {
+  const list = document.getElementById(`catatan-list-${id_menu}`);
+  const textareaEls = list.querySelectorAll("textarea");
+  const catatan = Array.from(textareaEls).map(el => el.value.trim());
+
+  try {
+    const res = await fetch("/keranjang/catatan", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id_menu, catatan }),
+    });
+    if (!res.ok) throw new Error("Gagal menyimpan catatan");
+    const data = await res.json();
+    console.log("✅ Catatan diperbarui:", data);
+  } catch (err) {
+    console.error(err);
+    Swal.fire({
+      icon: "error",
+      title: "Oops!",
+      text: "Gagal menyimpan catatan.",
+      confirmButtonColor: "#ef4444",
+    });
+  }
+}
+
+// ❌ Hapus satu catatan
+async function hapusCatatan(id_menu, index) {
+  const list = document.getElementById(`catatan-list-${id_menu}`);
+  const rows = Array.from(list.children);
+  if (rows[index]) rows[index].remove();
+  simpanCatatan(id_menu);
+}
+
+// 🧠 Variabel global untuk menyimpan nama pelanggan
+let namaPelanggan = "";
+let nomorMeja = "Meja 1"; // bisa kamu ubah dinamis kalau sistemmu punya data nomor meja
+
+// 🚀 Inisialisasi awal saat halaman dibuka
+document.addEventListener("DOMContentLoaded", () => {
+  const inputNama = document.getElementById("namaPelanggan");
+  // Set default ke nomor meja
+  inputNama.value = nomorMeja;
+  // Update variabel global juga
+  namaPelanggan = nomorMeja;
+});
+
+// ✏️ Fungsi untuk memperbarui nama pelanggan
+function updateNamaPelanggan() {
+  const input = document.getElementById("namaPelanggan");
+  const nama = input.value.trim();
+
+  if (nama === "" || nama.toLowerCase().includes(nomorMeja.toLowerCase())) {
+    // kalau kosong atau cuma isi "Meja 1", simpan default meja
+    namaPelanggan = nomorMeja;
+  } else {
+    // kalau isi nama, gabungkan dengan meja
+    namaPelanggan = `${nama} - ${nomorMeja}`;
+  }
+
+  console.log("Nama pelanggan sekarang:", namaPelanggan);
+}
+
 
   const modal = document.getElementById("checkoutModal");
   document.getElementById("btnCheckout").addEventListener("click", () => modal.classList.remove("hidden"));
