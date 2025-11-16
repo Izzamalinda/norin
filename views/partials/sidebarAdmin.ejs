@@ -108,14 +108,42 @@
         <a href="/admin/daftar-pesanan" id="menu-pesanan"
           class="menu-item relative bg-white/10 text-white font-semibold px-4 py-3 rounded-xl flex items-center space-x-3 hover:bg-gradient-to-r hover:from-orange-500 hover:to-red-600">
           <i class="fas fa-shopping-cart text-lg"></i>
-          <span>Pesanan</span>
-
-          <!-- 🔴 Badge Notifikasi Pesanan Baru -->
-          <span id="pesananBadge" 
-            class="hidden absolute -top-1 -right-2 bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full shadow-md animate-pulse">
-            0
-          </span>
+          <span id="pesananText">Pesanan</span>
         </a>
+
+
+        <script>
+          function updateBadge() {
+            fetch("/pesanan/jumlah-pesanan")
+              .then(res => res.json())
+              .then(data => {
+                const badge = document.getElementById("pesananBadge");
+
+                if (data.total > 0) {
+                  badge.innerText = data.total;
+                  badge.classList.remove("hidden");
+                } else {
+                  badge.classList.add("hidden");
+                }
+              })
+              .catch(err => console.error("Error fetch jumlah pesanan:", err));
+          }
+
+          // Jalankan pertama kali
+          updateBadge();
+
+          // Perbarui setiap 5 detik
+          setInterval(updateBadge, 5000);
+        </script>
+
+
+        <!-- Takeaway -->
+          <a href="/menu?meja=0" 
+            class="menu-item bg-white/10 text-white font-semibold px-4 py-3 rounded-xl flex items-center space-x-3 hover:bg-gradient-to-r hover:from-green-500 hover:to-blue-500">
+            <i class="fas fa-shopping-bag text-lg"></i>
+            <span>Takeaway</span>
+          </a>
+
 
         <!-- Meja -->
         <a href="/meja/list" id="menu-meja"
@@ -167,9 +195,9 @@
       menus.meja.classList.add('bg-gradient-to-r', 'from-orange-500', 'to-red-600', 'shadow-lg');
     }
 
-    // =====================================
-    // 🔔 Socket.IO untuk notifikasi pesanan baru (namespace: /admin)
-    // =====================================
+    // // =====================================
+    // // 🔔 Socket.IO untuk notifikasi pesanan baru (namespace: /admin)
+    // // =====================================
     const socket = io("/admin", {
       transports: ["websocket"],
     });
@@ -212,6 +240,27 @@
   });
 </script>
 
+<script>
+  async function updatePesananLabel() {
+    try {
+      const res = await fetch("/pesanan/jumlah-pesanan");
+      const data = await res.json();
+
+      const textElement = document.getElementById("pesananText");
+
+      if (data.total > 0) {
+        textElement.innerHTML = `Pesanan (${data.total})`;
+      } else {
+        textElement.innerHTML = "Pesanan";
+      }
+    } catch (err) {
+      console.error("Gagal cek pesanan:", err);
+    }
+  }
+
+  updatePesananLabel();
+  setInterval(updatePesananLabel, 5000);
+</script>
 
 
     

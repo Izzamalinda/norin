@@ -117,3 +117,26 @@ exports.getMenuById = async (req, res) => {
     res.status(500).send("Terjadi kesalahan: " + error.message);
   }
 };
+
+
+exports.getMenuPage = async (req, res) => {
+  // Jika user akses /menu?meja=0 maka set session Takeaway
+  if (req.query.meja !== undefined) {
+    req.session.id_meja = req.query.meja;
+    req.session.no_meja = req.query.meja === "0" ? "Takeaway" : `Meja ${req.query.meja}`;
+  }
+
+  // Jika tetap tidak ada session → fallback ke Takeaway
+  if (!req.session.id_meja) {
+    req.session.id_meja = 0;
+    req.session.no_meja = "Takeaway";
+  }
+
+  const menu = await Menu.findAll();
+
+  res.render("menu", {
+    title: "Menu",
+    menu,
+    meja: req.session.no_meja,
+  });
+};

@@ -122,14 +122,14 @@ exports.createPesanan = async (req, res) => {
       total_harga,
     });
 
-    // 🔔 Emit event realtime ke admin
-    io.emit("pesananBaru", {
-      id_pesanan: pesananBaru.id_pesanan,
-      id_meja,
-      no_meja: meja.no_meja, // penting agar admin tahu meja berapa
-      status_pesanan: pesananBaru.status_pesanan,
-      tanggal_pesan: pesananBaru.tanggal_pesan,
-    });
+    // // 🔔 Emit event realtime ke admin
+    // io.emit("pesananBaru", {
+    //   id_pesanan: pesananBaru.id_pesanan,
+    //   id_meja,
+    //   no_meja: meja.no_meja, // penting agar admin tahu meja berapa
+    //   status_pesanan: pesananBaru.status_pesanan,
+    //   tanggal_pesan: pesananBaru.tanggal_pesan,
+    // });
 
     res.status(200).json({
       message: "Pesanan berhasil dibuat",
@@ -138,5 +138,20 @@ exports.createPesanan = async (req, res) => {
   } catch (err) {
     console.error("❌ Error createPesanan:", err);
     res.status(500).send("Gagal membuat pesanan baru");
+  }
+};
+
+exports.getJumlahPesanan = async (req, res) => {
+  try {
+    const totalPesanan = await Pesanan.count({
+      where: {
+        status_pesanan: { [Op.notIn]: ["Selesai", "Completed"] }
+      }
+    });
+
+    res.json({ total: totalPesanan });
+  } catch (err) {
+    console.error("Error getJumlahPesanan:", err);
+    res.status(500).json({ total: 0 });
   }
 };
