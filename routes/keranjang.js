@@ -2,12 +2,11 @@ const express = require("express");
 const router = express.Router();
 const keranjangController = require("../controllers/keranjangController");
 
-router.post("/add", keranjangController.addToKeranjang);
-router.patch("/update", keranjangController.updateJumlah);
-router.delete("/:id_menu", keranjangController.deleteItem);
-router.post("/checkout", keranjangController.checkout);
-// 📝 Tambah atau ubah catatan item
-router.patch("/catatan", keranjangController.updateCatatan);
+router.post("/add", keranjangController.addToKeranjang.bind(keranjangController));
+router.patch("/update", keranjangController.updateJumlah.bind(keranjangController));
+router.delete("/:id_menu", keranjangController.deleteItem.bind(keranjangController));
+router.post("/checkout", keranjangController.checkout.bind(keranjangController));
+router.patch("/catatan", keranjangController.updateCatatan.bind(keranjangController));
 
 
 

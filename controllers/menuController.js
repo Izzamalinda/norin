@@ -1,19 +1,21 @@
-
 const { Menu } = require("../models");
 const path = require("path");
 const fs = require("fs");
 
-module.exports = {
+class MenuController {
 
   async getAll(req, res) {
     try {
       const menus = await Menu.findAll();
-      res.render("kelolaMenu", { title: "Kelola Menu", menus });
+      res.render("kelolaMenu", {
+        title: "Kelola Menu",
+        menus,
+      });
     } catch (err) {
-      console.error(err);
+      console.error("❌ Error getAll:", err);
       res.status(500).send("Gagal mengambil data menu");
     }
-  },
+  }
 
   async create(req, res) {
     try {
@@ -34,11 +36,12 @@ module.exports = {
       });
 
       res.redirect("/admin/kelola-menu");
+
     } catch (err) {
-      console.error(err);
+      console.error("❌ Error create:", err);
       res.status(500).send("Gagal menambahkan menu");
     }
-  },
+  }
 
   async update(req, res) {
     try {
@@ -49,6 +52,7 @@ module.exports = {
       if (!menu) return res.status(404).send("Menu tidak ditemukan");
 
       let foto = menu.foto;
+
       if (req.file) {
         if (menu.foto) {
           const oldPath = path.join(__dirname, "..", "public", menu.foto);
@@ -57,18 +61,28 @@ module.exports = {
         foto = "/uploads/menu/" + req.file.filename;
       }
 
-      await menu.update({ nama, harga, deskripsi, status_menu,kategori, foto });
+      await menu.update({
+        nama,
+        harga,
+        deskripsi,
+        status_menu,
+        kategori,
+        foto,
+      });
+
       res.redirect("/admin/kelola-menu");
+
     } catch (err) {
-      console.error(err);
+      console.error("❌ Error update:", err);
       res.status(500).send("Gagal mengupdate menu");
     }
-  },
+  }
 
   async delete(req, res) {
     try {
       const { id } = req.params;
       const menu = await Menu.findByPk(id);
+
       if (!menu) return res.status(404).send("Menu tidak ditemukan");
 
       if (menu.foto) {
@@ -77,10 +91,14 @@ module.exports = {
       }
 
       await menu.destroy();
+
       res.redirect("/admin/kelola-menu");
+
     } catch (err) {
-      console.error(err);
+      console.error("❌ Error delete:", err);
       res.status(500).send("Gagal menghapus menu");
     }
-  },
-};
+  }
+}
+
+module.exports = new MenuController();

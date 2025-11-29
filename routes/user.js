@@ -16,9 +16,9 @@ router.get("/", async (req, res, next) => {
   }
 });
 
-router.get("/menu", menuUserController.getAllMenu);
-router.get("/menu/:id", menuUserController.getMenuById);
-router.get("/menu/search/find", menuUserController.searchMenu);
-router.get("/menu/kategori/:kategori", menuUserController.getMenuByCategory);
+router.get("/menu", menuUserController.getAllMenu.bind(menuUserController));
+router.get("/menu/:id", menuUserController.getMenuById.bind(menuUserController));
+router.get("/menu/search/find", menuUserController.searchMenu.bind(menuUserController));
+router.get("/menu/kategori/:kategori", menuUserController.getMenuByCategory.bind(menuUserController));
 
 module.exports = router;
