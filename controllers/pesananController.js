@@ -126,7 +126,7 @@ class PesananController {
       console.error("❌ Error createPesanan:", err);
       res.status(500).send("Gagal membuat pesanan baru");
     }
-  }
+  } 
 
   async getJumlahPesanan(req, res) {
     try {
