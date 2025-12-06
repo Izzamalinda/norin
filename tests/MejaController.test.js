@@ -24,6 +24,41 @@ jest.mock("../utils/generateQrMeja", () => ({
 const { Meja, Pesanan } = require("../models");
 const { generateQrMeja } = require("../utils/generateQrMeja");
 
+describe("MejaController initialization", () => {
+  let existsSpy;
+  let mkdirSpy;
+
+  beforeEach(() => {
+    jest.resetModules(); // penting: re-require module
+    existsSpy = jest.spyOn(fs, "existsSync");
+    mkdirSpy = jest.spyOn(fs, "mkdirSync").mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    existsSpy.mockRestore();
+    mkdirSpy.mockRestore();
+  });
+
+  test("creates qrDir when it does NOT exist", () => {
+    existsSpy.mockReturnValue(false);
+
+    // require ulang controller untuk trigger line 7
+    const ctrl = require("../controllers/mejaController");
+
+    expect(existsSpy).toHaveBeenCalled();
+    expect(mkdirSpy).toHaveBeenCalled();
+  });
+
+  test("does NOT create qrDir when it already exists", () => {
+    existsSpy.mockReturnValue(true);
+
+    const ctrl = require("../controllers/mejaController");
+
+    expect(existsSpy).toHaveBeenCalled();
+    expect(mkdirSpy).not.toHaveBeenCalled();
+  });
+});
+
 // Require controller after mocks
 const mejaController = require("../controllers/mejaController"); // adjust path if needed
 
@@ -201,7 +236,7 @@ describe("MejaController", () => {
       existsSpy.mockRestore();
       unlinkSpy.mockRestore();
     });
-
+    
     test("returns 500 on error", async () => {
       req.params.id = "MJ012";
       Meja.findByPk.mockRejectedValue(new Error("fail"));
@@ -248,6 +283,17 @@ describe("MejaController", () => {
       expect(Meja.findByPk).toHaveBeenCalledWith("MJ020");
       expect(result).toBe(found);
     });
+    test("returns existing meja even when no_meja is null", async () => {
+  const found = { id_meja: "MJ050", no_meja: 50 };
+  Meja.findByPk.mockResolvedValue(found);
+
+  const result = await mejaController.ensureMejaExists("MJ050", null);
+
+  expect(Meja.findByPk).toHaveBeenCalledWith("MJ050");
+  expect(Meja.create).not.toHaveBeenCalled();
+  expect(result).toBe(found);
+});
+
 
     test("creates meja when not found and no_meja provided", async () => {
       Meja.findByPk.mockResolvedValue(null);
