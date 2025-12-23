@@ -1,11 +1,13 @@
-// utils/generateQrMeja.js
+require('dotenv').config();
 const QRCode = require('qrcode');
 const { createCanvas, loadImage } = require('canvas');
 const fs = require('fs');
 const path = require('path');
 
 async function generateQrMeja(no_meja, outputDir) {
-  const menuUrl = `http://192.168.1.42:3000/menu?meja=${no_meja}`;
+  const baseUrl = process.env.BASE_URL;
+  const menuUrl = `${baseUrl}/menu?meja=${no_meja}`;
+
   const qrFile = `meja-${no_meja}.png`;
   const qrPath = path.join(outputDir, qrFile);
   const qrRelativePath = `/uploads/qrcode/${qrFile}`;
