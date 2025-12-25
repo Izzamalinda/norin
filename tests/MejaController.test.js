@@ -317,5 +317,15 @@ describe("MejaController", () => {
 
       expect(result).toBeNull();
     });
+
+    test("triggers default parameter for no_meja", async () => {
+      Meja.findByPk.mockResolvedValue(null);
+
+      // Call with only one argument to trigger no_meja = null default
+      const result = await mejaController.ensureMejaExists("MJ099");
+
+      expect(Meja.findByPk).toHaveBeenCalledWith("MJ099");
+      expect(result).toBeNull();
+    });
   });
 });

@@ -194,7 +194,10 @@ describe('MenuUserController', () => {
   test('searchMenu: finds by keyword and renders', async () => {
     const fakeMenus = [{ id_menu: 'M3', nama: 'Soto' }];
     Menu.findAll.mockResolvedValue(fakeMenus);
-    Menu.count.mockResolvedValue(0);
+    Menu.count
+      .mockResolvedValueOnce(5) // makanan
+      .mockResolvedValueOnce(3) // minuman
+      .mockResolvedValueOnce(2); // cemilan
 
     const req = mkReq({ keyword: 'So' }, {}, { keranjang: [] });
     const res = mkRes();
@@ -204,6 +207,39 @@ describe('MenuUserController', () => {
     expect(Menu.findAll).toHaveBeenCalledWith(expect.objectContaining({ where: expect.any(Object), order: [['nama', 'ASC']] }));
     expect(res.view).toBe('user/menuUser');
     expect(res.data.keyword).toBe('So');
+    expect(res.data.menus).toEqual(fakeMenus);
+    expect(res.data.keranjang).toEqual([]);
+    expect(res.data.makananCount).toBe(5);
+    expect(res.data.minumanCount).toBe(3);
+    expect(res.data.cemilanCount).toBe(2);
+  });
+
+  test('searchMenu: uses no_meja from query', async () => {
+    const fakeMenus = [{ id_menu: 'M3', nama: 'Soto' }];
+    Menu.findAll.mockResolvedValue(fakeMenus);
+    Menu.count.mockResolvedValue(0);
+
+    const req = mkReq({ keyword: 'So', meja: '10' }, {}, { keranjang: [] });
+    const res = mkRes();
+
+    await MenuUserController.searchMenu(req, res);
+
+    expect(res.view).toBe('user/menuUser');
+    expect(res.data.no_meja).toBe('10');
+  });
+
+  test('searchMenu: uses no_meja from session when query.meja is empty', async () => {
+    const fakeMenus = [{ id_menu: 'M3', nama: 'Soto' }];
+    Menu.findAll.mockResolvedValue(fakeMenus);
+    Menu.count.mockResolvedValue(0);
+
+    const req = mkReq({ keyword: 'So', meja: '' }, {}, { id_meja: 'MEJA1', keranjang: [] });
+    const res = mkRes();
+
+    await MenuUserController.searchMenu(req, res);
+
+    expect(res.view).toBe('user/menuUser');
+    expect(res.data.no_meja).toBe('MEJA1'); // Should use session when query is empty
   });
 
   test('searchMenu: error -> 500', async () => {

@@ -2,6 +2,8 @@
 
 // tests/dashboardController.test.js
 
+const moment = require("moment");
+
 jest.mock("../models", () => ({
   Menu: {
     count: jest.fn(),
@@ -186,13 +188,12 @@ describe("DashboardController (Unit Test)", () => {
   });
 
   test("getSalesAnalytics: tanggal tanpa data harus return revenue = 0", async () => {
-  const today = new Date();
-  const d1 = new Date(Date.now() - 24 * 60 * 60 * 1000);
-  const fmt = (dt) => dt.toISOString().slice(0, 10);
+  const today = moment().format("YYYY-MM-DD");
+  const yesterday = moment().subtract(1, "days").format("YYYY-MM-DD");
 
-  // Hanya ada 1 row → hari kedua TIDAK ADA di DB
+  // Hanya ada 1 row → hari kemarin TIDAK ADA di DB
   sequelize.query.mockResolvedValue([
-    { date: fmt(today), revenue: 5000 },
+    { date: today, revenue: 5000 },
   ]);
 
   const req = mkReq({}, { range: "2" });
@@ -205,10 +206,10 @@ describe("DashboardController (Unit Test)", () => {
   // Pastikan panjang tetap 2 (range=2)
   expect(series.length).toBe(2);
 
-  // Hari pertama tidak ada → revenue 0
+  // Hari pertama (kemarin) tidak ada → revenue 0
   expect(series[0].revenue).toBe(0);
 
-  // Hari kedua sesuai DB
+  // Hari kedua (hari ini) sesuai DB
   expect(series[1].revenue).toBe(5000);
 });
 

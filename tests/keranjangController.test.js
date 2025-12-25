@@ -31,6 +31,9 @@ function mkReq(body = {}, params = {}, session = {}) {
 describe('KeranjangController (Unit Test)', () => {
 	beforeEach(() => {
 		jest.clearAllMocks();
+	});
+	beforeEach(() => {
+		jest.clearAllMocks();
 		jest.spyOn(console, 'error').mockImplementation(() => {});
 	});
 
@@ -96,6 +99,28 @@ describe('KeranjangController (Unit Test)', () => {
 		await KeranjangController.updateJumlah(req, res);
 
 		expect(req.session.keranjang).toEqual([]);
+		expect(res.jsonBody).toEqual({ success: true, keranjang: req.session.keranjang });
+	});
+
+	test('updateJumlah: kurang tapi tidak sampai 0 -> update jumlah dan total_harga', async () => {
+		const req = mkReq({ id_menu: 'M1', action: 'kurang' }, {}, { keranjang: [{ id_menu: 'M1', jumlah: 3, harga: 5000, total_harga: 15000 }] });
+		const res = mkRes();
+
+		await KeranjangController.updateJumlah(req, res);
+
+		expect(req.session.keranjang[0].jumlah).toBe(2);
+		expect(req.session.keranjang[0].total_harga).toBe(10000);
+		expect(res.jsonBody).toEqual({ success: true, keranjang: req.session.keranjang });
+	});
+
+	test('updateJumlah: invalid action -> no change', async () => {
+		const req = mkReq({ id_menu: 'M1', action: 'invalid' }, {}, { keranjang: [{ id_menu: 'M1', jumlah: 2, harga: 5000, total_harga: 10000 }] });
+		const res = mkRes();
+
+		await KeranjangController.updateJumlah(req, res);
+
+		expect(req.session.keranjang[0].jumlah).toBe(2); // should remain unchanged
+		expect(req.session.keranjang[0].total_harga).toBe(10000); // should remain unchanged
 		expect(res.jsonBody).toEqual({ success: true, keranjang: req.session.keranjang });
 	});
 
@@ -326,6 +351,32 @@ describe('KeranjangController (Unit Test)', () => {
 		expect(res.jsonBody).toEqual({ success: true, id_meja: 'MEJA1' });
 	});
 
+	test('checkout: sukses membuat pesanan dan multiple keranjang entries', async () => {
+		mejaController.ensureMejaExists.mockResolvedValue({ id_meja: 'MEJA1' });
+		mejaController.hasActivePesanan.mockResolvedValue(false);
+
+		Pesanan.findOne.mockResolvedValue({ id_pesanan: 'PSN0001' });
+		Pesanan.create.mockResolvedValue({ id_pesanan: 'PSN0002' });
+		Keranjang.findOne.mockResolvedValue({ id_keranjang: 'KRJ0001' });
+		Keranjang.create.mockResolvedValue({});
+
+		const req = mkReq({}, {}, {
+			id_meja: 'MEJA1',
+			keranjang: [
+				{ id_menu: 'M1', jumlah: 2, total_harga: 10000 },
+				{ id_menu: 'M2', jumlah: 1, total_harga: 5000 }
+			]
+		});
+		const res = mkRes();
+
+		await KeranjangController.checkout(req, res);
+
+		expect(Pesanan.create).toHaveBeenCalled();
+		expect(Keranjang.create).toHaveBeenCalledTimes(2); // Should create 2 keranjang entries
+		expect(req.session.keranjang).toEqual([]);
+		expect(res.jsonBody).toEqual({ success: true, id_meja: 'MEJA1' });
+	});
+
 	test('checkout: lastCart present but id_keranjang not matching KRJ\d+', async () => {
 		mejaController.ensureMejaExists.mockResolvedValue({ id_meja: 'MEJA1' });
 		mejaController.hasActivePesanan.mockResolvedValue(false);
@@ -341,6 +392,23 @@ describe('KeranjangController (Unit Test)', () => {
 
 		expect(Keranjang.create).toHaveBeenCalled();
 		expect(res.jsonBody).toEqual({ success: true, id_meja: 'MEJA1' });
+	});
+
+	test('checkout: Keranjang.create throws error -> 500', async () => {
+		mejaController.ensureMejaExists.mockResolvedValue({ id_meja: 'MEJA1' });
+		mejaController.hasActivePesanan.mockResolvedValue(false);
+		Pesanan.findOne.mockResolvedValue(null);
+		Pesanan.create.mockResolvedValue({});
+		Keranjang.findOne.mockResolvedValue(null);
+		Keranjang.create.mockRejectedValue(new Error('DB error'));
+
+		const req = mkReq({}, {}, { id_meja: 'MEJA1', keranjang: [{ id_menu: 'M1', jumlah: 1, total_harga: 5000 }] });
+		const res = mkRes();
+
+		await KeranjangController.checkout(req, res);
+
+		expect(res.statusCode).toBe(500);
+		expect(res.jsonBody).toHaveProperty('error');
 	});
 
 });
